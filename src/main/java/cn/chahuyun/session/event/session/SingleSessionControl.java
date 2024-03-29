@@ -4,6 +4,7 @@ import cn.chahuyun.session.data.ParameterSet;
 import cn.chahuyun.session.data.Scope;
 import cn.chahuyun.session.data.cache.Cache;
 import cn.chahuyun.session.data.cache.CacheFactory;
+import cn.chahuyun.session.data.cache.MemoryCache;
 import cn.chahuyun.session.data.entity.SingleSession;
 import cn.chahuyun.session.data.factory.AbstractDataService;
 import cn.chahuyun.session.data.factory.DataFactory;
@@ -62,9 +63,11 @@ public class SingleSessionControl {
             return;
         }
 
+        scope = parameterSet.getScope();
+
         SingleSession singleSession = new SingleSession();
 
-        Cache cacheService = CacheFactory.getInstall().getCacheService();
+        MemoryCache cacheService = (MemoryCache) CacheFactory.getInstall().getCacheService();
         List<SingleSession> cacheServiceSingSession = cacheService.getSingSession(scope);
         if (!cacheServiceSingSession.isEmpty()) {
             for (SingleSession session : cacheServiceSingSession) {
