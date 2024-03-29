@@ -13,8 +13,6 @@ import net.mamoe.mirai.contact.User;
 import net.mamoe.mirai.message.data.MessageChain;
 import net.mamoe.mirai.message.data.MessageChainBuilder;
 
-import java.util.List;
-
 /**
  * 权限控制
  *
@@ -54,6 +52,8 @@ public class PermissionsControl {
 
         AbstractDataService dataService = DataFactory.getInstance().getDataService();
 
+
+        int operation = 0;
         for (int i = 1; i < split.length; i++) {
             String s = split[i];
             if (Constant.HUYAN_SESSION_PERM_LIST.contains(s)) {
@@ -66,10 +66,15 @@ public class PermissionsControl {
                 } else {
                     chainBuilder.append(s).append("-失败\n");
                 }
+                operation++;
             }
         }
 
-        subject.sendMessage(chainBuilder.build());
+        if (operation > 0) {
+            subject.sendMessage(chainBuilder.build());
+        } else {
+            subject.sendMessage("没有识别的权限!");
+        }
 
     }
 
