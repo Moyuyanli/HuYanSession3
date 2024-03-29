@@ -114,6 +114,7 @@ public class ParameterSet {
                     continue;
                 case "cache":
                 case "ca":
+                case "缓存":
                     localCache = true;
                     continue;
                 case "STRING":
@@ -136,16 +137,8 @@ public class ParameterSet {
                     this.exceptionMsg = "你的参数有误:global 识别失败";
                 }
             } else if (param.contains("member-")) {
-                MessageChain userMessage = MessageChain.deserializeFromMiraiCode(param, subject);
-                if (userMessage.contains(At.Key)) {
-                    At at = (At) userMessage.get(At.Key);
-                    if (at != null) {
-                        scope = new Scope(Scope.Type.GROUP_MEMBER, subject.getId(), at.getTarget());
-                        continue;
-                    }
-                }
                 try {
-                    long aLong = Long.parseLong(param.replace("member-", ""));
+                    long aLong = Long.parseLong(param.replace("member-", "").replace("@",""));
                     scope = new Scope(Scope.Type.GROUP_MEMBER, subject.getId(), aLong);
                 } catch (NumberFormatException e) {
                     this.exception = true;
