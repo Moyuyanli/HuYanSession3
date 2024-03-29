@@ -6,6 +6,8 @@ import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.message.data.At;
 import net.mamoe.mirai.message.data.MessageChain;
 
+import java.util.regex.Pattern;
+
 import static cn.chahuyun.session.HuYanSession.pluginConfig;
 
 /**
@@ -66,14 +68,14 @@ public class ParameterSet {
     }
 
     public ParameterSet(Scope scope, String... params) {
-        identification(params);
         this.scope = scope;
+        identification(params);
     }
 
     public ParameterSet(Scope scope, Contact subject, String... params) {
-        identification(params);
         this.scope = scope;
         this.subject = subject;
+        identification(params);
     }
 
 
@@ -102,13 +104,16 @@ public class ParameterSet {
                     matchTriggerType = MatchTriggerType.REGULAR;
                     continue;
                 case "rewrite":
+                case "%":
                     rewrite = true;
                     break;
                 case "dynamic":
+                case "dt":
                 case "动态":
                     dynamic = true;
                     continue;
                 case "cache":
+                case "ca":
                     localCache = true;
                     continue;
                 case "STRING":
@@ -123,16 +128,8 @@ public class ParameterSet {
             }
 
             if (param.contains("global-")) {
-                MessageChain userMessage = MessageChain.deserializeFromMiraiCode(param, subject);
-                if (userMessage.contains(At.Key)) {
-                    At at = (At) userMessage.get(At.Key);
-                    if (at != null) {
-                        scope = new Scope(Scope.Type.GLOBAL_USER, at.getTarget());
-                        continue;
-                    }
-                }
                 try {
-                    long aLong = Long.parseLong(param.replace("global-", ""));
+                    long aLong = Long.parseLong(param.replace("global-", "").replace("@",""));
                     scope = new Scope(Scope.Type.GLOBAL_USER, aLong);
                 } catch (NumberFormatException e) {
                     this.exception = true;
@@ -175,20 +172,15 @@ public class ParameterSet {
                     this.exceptionMsg = "你的参数有误:id 识别失败";
                 }
             } else if (param.contains("+") || param.contains("-")) {
-                MessageChain userMessage = MessageChain.deserializeFromMiraiCode(param, subject);
-                if (userMessage.contains(At.Key)) {
-                    At at = (At) userMessage.get(1);
-                    if (at != null) {
-                        scope = new Scope(Scope.Type.GROUP_MEMBER, subject.getId(), at.getTarget());
-                    }
-                } else {
-                    try {
-                        long aLong = Long.parseLong(param.replace("+", "").replace("-", ""));
-                        scope = new Scope(Scope.Type.GROUP_MEMBER, subject.getId(), aLong);
-                    } catch (NumberFormatException e) {
-                        this.exception = true;
-                        this.exceptionMsg = "你的参数有误:qq 识别失败";
-                    }
+                String replace = param.replace("+", "").replace("-", "");
+                identification(replace);
+            } else if (Pattern.matches("^@?\\d{6,10}$", param)) {
+                try {
+                    long aLong = Long.parseLong(param.replace("@", ""));
+                    scope = new Scope(Scope.Type.GROUP_MEMBER, subject.getId(), aLong);
+                } catch (NumberFormatException e) {
+                    this.exception = true;
+                    this.exceptionMsg = "你的参数有误:qq 识别失败";
                 }
             }
         }
