@@ -15,6 +15,7 @@ import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.contact.User;
 import net.mamoe.mirai.message.data.*;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 
@@ -193,10 +194,11 @@ public class SingleSessionControl {
                 }
             }
         } else {
-            for (SingleSession singleSession : singSession) {
+            for (Iterator<SingleSession> iterator = singSession.iterator(); iterator.hasNext(); ) {
+                SingleSession singleSession = iterator.next();
                 if (trigger.equals(singleSession.getTrigger())) {
                     if (dataService.deleteEntity(singleSession)) {
-                        cacheService.removeSingSession(singleSession.getId());
+                        iterator.remove();
                         subject.sendMessage(AnswerTool.getAnswer(answerConfig.getRemoveSuccess()));
                     } else {
                         subject.sendMessage(AnswerTool.getAnswer(answerConfig.getRemoveFailed()));
