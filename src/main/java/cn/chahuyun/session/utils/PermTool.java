@@ -35,19 +35,19 @@ public class PermTool {
     private static void mergePerm(String permCode, PermUser permUser) {
         switch (permCode) {
             case "admin":
-                permUser.setAdmin(permUser.isAdmin());
+                permUser.setAdmin(true);
                 break;
             case "session":
-                permUser.setSession(permUser.isSession());
+                permUser.setSession(true);
                 break;
             case "hh":
-                permUser.setHh(permUser.isHh());
+                permUser.setHh(true);
                 break;
             case "dct":
-                permUser.setDct(permUser.isDct());
+                permUser.setDct(true);
                 break;
             case "ds":
-                permUser.setDs(permUser.isDs());
+                permUser.setDs(true);
                 break;
         }
     }
