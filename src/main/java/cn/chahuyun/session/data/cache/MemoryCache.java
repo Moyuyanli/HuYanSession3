@@ -183,7 +183,7 @@ public class MemoryCache implements Cache {
      */
     @Override
     public List<SingleSession> getSingSession(Scope scope) {
-        return singleSessionMap.get(scope);
+        return Objects.requireNonNullElseGet(singleSessionMap.get(scope), ArrayList::new);
     }
 
     /**
@@ -194,7 +194,7 @@ public class MemoryCache implements Cache {
      */
     @Override
     public List<ManySession> getManySession(Scope scope) {
-        return manySessionMap.get(scope);
+        return Objects.requireNonNullElseGet(manySessionMap.get(scope), ArrayList::new);
     }
 
     /**
@@ -205,7 +205,7 @@ public class MemoryCache implements Cache {
      */
     @Override
     public List<TimingSession> getTimingSession(Scope scope) {
-        return timingSessionMap.get(scope);
+        return Objects.requireNonNullElseGet(timingSessionMap.get(scope), ArrayList::new);
     }
 
     /**
@@ -216,7 +216,7 @@ public class MemoryCache implements Cache {
      */
     @Override
     public List<Permission> getPermissions(Scope scope) {
-        return permissionMap.get(scope);
+        return Objects.requireNonNullElseGet(permissionMap.get(scope), ArrayList::new);
     }
 
     /**
