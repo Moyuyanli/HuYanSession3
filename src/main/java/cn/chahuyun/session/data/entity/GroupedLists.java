@@ -6,6 +6,8 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,6 +19,8 @@ import java.util.List;
  * @date 2024/1/8 10:57
  */
 @Entity
+@Getter
+@Setter
 @Table(name = "grouped_lists")
 public class GroupedLists extends BaseEntity {
 
@@ -63,30 +67,6 @@ public class GroupedLists extends BaseEntity {
         this.type = type;
         this.name = name;
         this.setValueList(valueList);
-    }
-
-    public Integer getType() {
-        return type;
-    }
-
-    public void setType(Integer type) {
-        this.type = type;
-    }
-
-    public String getValues() {
-        return values;
-    }
-
-    public void setValues(String values) {
-        this.values = values;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
     public List<Long> getValueList() {

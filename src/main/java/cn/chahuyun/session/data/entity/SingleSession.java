@@ -5,6 +5,9 @@ import cn.chahuyun.session.enums.MatchTriggerType;
 import cn.chahuyun.session.enums.MessageConversionType;
 import cn.chahuyun.session.enums.SessionType;
 import jakarta.persistence.*;
+import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.Objects;
 
@@ -15,6 +18,8 @@ import java.util.Objects;
  * @date 2024/1/3 15:25
  */
 @Entity
+@Getter
+@Setter
 @Table(name = "session_single")
 public class SingleSession extends BaseEntity {
 
@@ -60,57 +65,6 @@ public class SingleSession extends BaseEntity {
     public SingleSession() {
     }
 
-    public String getTrigger() {
-        return trigger;
-    }
-
-    public void setTrigger(String trigger) {
-        this.trigger = trigger;
-    }
-
-    public String getReply() {
-        return reply;
-    }
-
-    public void setReply(String reply) {
-        this.reply = reply;
-    }
-
-    public boolean isDynamic() {
-        return dynamic;
-    }
-
-    public void setDynamic(boolean dynamic) {
-        this.dynamic = dynamic;
-    }
-
-    public boolean isLocal() {
-        return local;
-    }
-
-    public void setLocal(boolean local) {
-        this.local = local;
-    }
-
-    public MatchTriggerType getTriggerType() {
-        return triggerType;
-    }
-
-    public void setTriggerType(MatchTriggerType triggerType) {
-        this.triggerType = triggerType;
-    }
-
-    public SessionType getSessionType() {
-        return sessionType;
-    }
-
-    public void setSessionType(SessionType sessionType) {
-        this.sessionType = sessionType;
-    }
-
-    public Double getProbability() {
-        return probability;
-    }
 
     public void setProbability(Double probability) {
         if (probability != null) {
@@ -118,10 +72,6 @@ public class SingleSession extends BaseEntity {
         } else {
             this.probability = 1.0;
         }
-    }
-
-    public MessageConversionType getConversionType() {
-        return conversionType;
     }
 
     public void setConversionType(MessageConversionType conversionType) {
