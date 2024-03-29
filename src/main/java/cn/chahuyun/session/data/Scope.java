@@ -256,9 +256,9 @@ public class Scope {
                     if (parts.length == 2) {
                         return new Scope(type, groupId);
                     } else if (parts.length == 4) {
-                        if (parts[3].equals("member")) {
+                        if (parts[2].equals("member")) {
                             return new Scope(Type.GROUP_MEMBER, groupId, Long.parseLong(parts[3]));
-                        } else if (parts[3].equals("membersName")) {
+                        } else if (parts[2].equals("membersName")) {
                             return new Scope(Type.GROUP_MEMBERS, groupId, parts[3]);
                         }
                     }
@@ -378,7 +378,7 @@ public class Scope {
                         groupName = concat(group.getName(), groupName);
                         NormalMember normalMember = group.get(getMember());
                         if (normalMember != null) {
-                            groupMemberName = concat(normalMember.getNameCard(), groupMemberName);
+                            groupMemberName = concat(normalMember.getNick(), groupMemberName);
                         }
                     }
                 }
