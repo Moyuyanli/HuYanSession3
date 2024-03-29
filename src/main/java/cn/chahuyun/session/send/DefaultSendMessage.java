@@ -79,7 +79,9 @@ public class DefaultSendMessage implements SendMessage {
                     chainBuilder.append(singleMessage);
                     continue;
                 }
-                String replace = new DynamicMessages(plainText.getContent(), messageEvent).replace();
+                DynamicMessages dynamicMessages = new DynamicMessages(plainText.getContent(), messageEvent);
+                dynamicMessages.setMessageSource(singleSession);
+                String replace = dynamicMessages.replace();
                 chainBuilder.append(replace);
             }
             replyMessageChain = chainBuilder.build();
