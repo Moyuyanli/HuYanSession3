@@ -136,13 +136,14 @@ public class EventServices extends SimpleListenerHost implements EventHanding {
         }
 
         //todo 匹配指令
-        String addStudyPattern = "壶言3消息测试";
-        if (sender.getId() == 572490972 && Pattern.matches(addStudyPattern, content)) {
+        if (sender.getId() == 572490972 && content.lastIndexOf("!String") == 0) {
+            subject.sendMessage(message.toString());
+        }else if (sender.getId() == 572490972 && content.lastIndexOf("!miraicode") == 0) {
+            subject.sendMessage(message.serializeToMiraiCode());
+        } else if (sender.getId() == 572490972 && content.lastIndexOf("!json") == 0) {
             subject.sendMessage(MessageChain.serializeToJsonString(message));
-        }
-
-        if (sender.getId() == 572490972 && content.lastIndexOf("!") == 0) {
-            subject.sendMessage(MessageChain.serializeToJsonString(message));
+        } else if (sender.getId() == 572490972 && content.lastIndexOf("!content") == 0) {
+            subject.sendMessage(message.contentToString());
         }
 
     }
