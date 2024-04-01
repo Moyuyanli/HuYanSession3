@@ -134,7 +134,7 @@ public class SingleSessionControl {
         singleSession.setLocal(parameterSet.isLocalCache());
         singleSession.setProbability(parameterSet.getProbability());
         singleSession.setSessionType(sessionType);
-        singleSession.setTriggerType(parameterSet.getMatchTriggerType());
+        singleSession.setMatchType(parameterSet.getMatchTriggerType());
         singleSession.setConversionType(parameterSet.getConversionType());
         singleSession.setScope(scope);
 
