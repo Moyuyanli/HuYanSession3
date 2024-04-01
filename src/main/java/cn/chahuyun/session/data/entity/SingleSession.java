@@ -5,7 +5,6 @@ import cn.chahuyun.session.enums.MatchTriggerType;
 import cn.chahuyun.session.enums.MessageConversionType;
 import cn.chahuyun.session.enums.SessionType;
 import jakarta.persistence.*;
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -49,7 +48,7 @@ public class SingleSession extends BaseEntity {
      * 匹配方式
      */
     @Enumerated(EnumType.STRING)
-    private MatchTriggerType triggerType;
+    private MatchTriggerType matchType;
     /**
      * 消息类型
      */
