@@ -79,7 +79,7 @@ public class MatchingTool {
 
 
         String trigger = singleSession.getTrigger();
-        switch (singleSession.getTriggerType()) {
+        switch (singleSession.getMatchType()) {
             case PRECISION:
                 return matchString.equals(trigger);
             case FUZZY:
