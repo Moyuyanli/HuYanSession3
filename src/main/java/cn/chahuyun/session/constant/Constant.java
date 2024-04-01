@@ -55,5 +55,16 @@ public class Constant {
         add("ds");
     }};
 
+    /**
+     * 动态消息的匹配格式
+     */
+    public static final String DYNAMIC_PATTERN = "\\$\\{\\S+?\\.\\S+?}";
+
+    public static final List<String> SINGLE_SESSION_DYNAMIC_PATTERN = new ArrayList<>() {{
+        add("at");
+        add("user");
+        add("");
+        add("");
+    }};
 
 }
