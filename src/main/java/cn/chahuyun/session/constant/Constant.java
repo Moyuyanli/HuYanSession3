@@ -3,7 +3,9 @@ package cn.chahuyun.session.constant;
 import cn.chahuyun.session.data.Scope;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 常量
@@ -60,11 +62,41 @@ public class Constant {
      */
     public static final String DYNAMIC_PATTERN = "\\$\\{\\S+?\\.\\S+?}";
 
-    public static final List<String> SINGLE_SESSION_DYNAMIC_PATTERN = new ArrayList<>() {{
-        add("at");
-        add("user");
-        add("");
-        add("");
+    public static final Map<String, List<String>> SINGLE_SESSION_DYNAMIC_PATTERN = new HashMap<>() {{
+        put("at", new ArrayList<>() {{
+            add("^\\d{6,11}$");
+            add("this");
+            add("all");
+        }});
+        put("user", new ArrayList<>() {{
+            add("id");
+            add("name");
+            add("avatar");
+            add("title");
+        }});
+        put("group", new ArrayList<>() {{
+            add("id");
+            add("name");
+            add("avatar");
+            //返回群主的名称
+            add("owner");
+        }});
+        put("time", new ArrayList<>() {{
+            add("now");
+            add("[yMdDhHms-\\s\\.:：]+");
+        }});
+        put("mate", new ArrayList<>() {{
+            add("\\d+");
+        }});
+        put("message", new ArrayList<>() {{
+            add("this");
+            add("reverse");
+        }});
+        put("owner", new ArrayList<>() {{
+            add("id");
+            add("name");
+            add("avatar");
+        }});
     }};
 
 }
