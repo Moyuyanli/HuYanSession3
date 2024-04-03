@@ -89,7 +89,7 @@ public class MatchingTool {
             case TAIL:
                 return matchString.endsWith(trigger);
             case REGULAR:
-                return Pattern.matches(trigger.replaceAll("\\\\(?!\\\\)", ""), matchString);
+                return Pattern.matches(trigger, matchString);
             default:
                 return false;
         }
