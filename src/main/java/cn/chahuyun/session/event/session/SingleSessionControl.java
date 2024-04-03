@@ -8,6 +8,7 @@ import cn.chahuyun.session.data.cache.MemoryCache;
 import cn.chahuyun.session.data.entity.SingleSession;
 import cn.chahuyun.session.data.factory.AbstractDataService;
 import cn.chahuyun.session.data.factory.DataFactory;
+import cn.chahuyun.session.enums.MatchTriggerType;
 import cn.chahuyun.session.enums.SessionType;
 import cn.chahuyun.session.utils.AnswerTool;
 import cn.hutool.core.util.ArrayUtil;
@@ -73,6 +74,7 @@ public class SingleSessionControl {
         if (!cacheServiceSingSession.isEmpty()) {
             for (SingleSession session : cacheServiceSingSession) {
                 if (session.getTrigger().equals(trigger)) {
+                    //是否重写
                     if (parameterSet.isRewrite()) {
                         singleSession.setId(session.getId());
                     } else {
@@ -127,6 +129,9 @@ public class SingleSessionControl {
 
         reply = MessageChain.serializeToJsonString(singleMessages);
 
+        if (parameterSet.getMatchTriggerType() == MatchTriggerType.REGULAR) {
+            trigger = trigger.replaceAll("\\\\(?!\\\\)", "");
+        }
 
         singleSession.setTrigger(trigger);
         singleSession.setReply(reply);
