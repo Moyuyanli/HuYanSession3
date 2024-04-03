@@ -7,7 +7,10 @@ import cn.chahuyun.session.enums.SendType;
 import cn.chahuyun.session.send.api.SendMessage;
 import cn.hutool.core.util.RandomUtil;
 import net.mamoe.mirai.event.events.MessageEvent;
-import net.mamoe.mirai.message.data.*;
+import net.mamoe.mirai.message.data.Image;
+import net.mamoe.mirai.message.data.MessageChain;
+import net.mamoe.mirai.message.data.MessageChainBuilder;
+import net.mamoe.mirai.message.data.SingleMessage;
 
 /**
  * 发送消息
@@ -71,19 +74,14 @@ public class DefaultSendMessage implements SendMessage {
     private void sendSingMessage() {
         String reply = singleSession.getReply();
         MessageChain replyMessageChain = MessageChain.deserializeFromJsonString(reply);
+
         if (singleSession.isDynamic()) {
             MessageChainBuilder chainBuilder = new MessageChainBuilder();
-            for (SingleMessage singleMessage : replyMessageChain) {
-                PlainText plainText = singleMessage instanceof PlainText ? ((PlainText) singleMessage) : null;
-                if (plainText == null) {
-                    chainBuilder.append(singleMessage);
-                    continue;
-                }
-                DynamicMessages dynamicMessages = new DynamicMessages(plainText.getContent(), messageEvent);
-                dynamicMessages.setMessageSource(singleSession);
-                String replace = dynamicMessages.replace();
-                chainBuilder.append(replace);
-            }
+
+            DynamicMessages dynamicMessages = new DynamicMessages(reply, messageEvent);
+            dynamicMessages.setMessageSource(singleSession);
+            chainBuilder.append(dynamicMessages.replace());
+
             replyMessageChain = chainBuilder.build();
         }
         if (singleSession.isLocal()) {
