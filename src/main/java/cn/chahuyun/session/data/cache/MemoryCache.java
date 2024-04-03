@@ -41,7 +41,15 @@ public class MemoryCache implements Cache {
     public void putSession(SingleSession session) {
         Scope scope = session.getScope();
         if (singleSessionMap.containsKey(scope)) {
-            singleSessionMap.get(scope).add(session);
+            List<SingleSession> singleSessions = singleSessionMap.get(scope);
+            for (int i = 0, singleSessionsSize = singleSessions.size(); i < singleSessionsSize; i++) {
+                SingleSession it = singleSessions.get(i);
+                if (Objects.equals(it.getId(), session.getId())) {
+                    singleSessions.set(i, session);
+                    return;
+                }
+            }
+            singleSessions.add(session);
         } else {
             singleSessionMap.put(scope, new ArrayList<>() {{
                 add(session);
@@ -58,7 +66,15 @@ public class MemoryCache implements Cache {
     public void putSession(ManySession session) {
         Scope scope = session.getScope();
         if (manySessionMap.containsKey(scope)) {
-            manySessionMap.get(scope).add(session);
+            List<ManySession> manySessions = manySessionMap.get(scope);
+            for (int i = 0, manySessionsSize = manySessions.size(); i < manySessionsSize; i++) {
+                ManySession it = manySessions.get(i);
+                if (Objects.equals(it.getId(), session.getId())) {
+                    manySessions.set(i, session);
+                    return;
+                }
+            }
+            manySessions.add(session);
         } else {
             manySessionMap.put(scope, new ArrayList<>() {{
                 add(session);
@@ -75,7 +91,15 @@ public class MemoryCache implements Cache {
     public void putSession(TimingSession session) {
         Scope scope = session.getScope();
         if (timingSessionMap.containsKey(scope)) {
-            timingSessionMap.get(scope).add(session);
+            List<TimingSession> timingSessions = timingSessionMap.get(scope);
+            for (int i = 0, timingSessionsSize = timingSessions.size(); i < timingSessionsSize; i++) {
+                TimingSession it = timingSessions.get(i);
+                if (Objects.equals(it.getId(), session.getId())) {
+                    timingSessions.set(i, session);
+                    return;
+                }
+            }
+            timingSessions.add(session);
         } else {
             timingSessionMap.put(scope, new ArrayList<>() {{
                 add(session);
@@ -92,7 +116,15 @@ public class MemoryCache implements Cache {
     public void putPermission(Permission permission) {
         Scope scope = permission.getScope();
         if (permissionMap.containsKey(scope)) {
-            permissionMap.get(scope).add(permission);
+            List<Permission> permissions = permissionMap.get(scope);
+            for (int i = 0, permissionsSize = permissions.size(); i < permissionsSize; i++) {
+                Permission it = permissions.get(i);
+                if (Objects.equals(it.getId(), permission.getId())) {
+                    permissions.set(i, permission);
+                    return;
+                }
+            }
+            permissions.add(permission);
         } else {
             permissionMap.put(scope, new ArrayList<>() {{
                 add(permission);
