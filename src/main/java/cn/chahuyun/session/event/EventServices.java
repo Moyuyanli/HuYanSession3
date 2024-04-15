@@ -128,9 +128,12 @@ public class EventServices extends SimpleListenerHost implements EventHanding {
         boolean admin = owner || permUser.isAdmin();
         if (admin) {
             String addPermissions = "^\\+((global|members?|list|user)?([-@]{0,2}((?=-)\\S+|(\\d+?)))?)( +\\S+)+|添加权限((global|members?|list|user)?([-@]{0,2}((?=-)\\S+|(\\d+?)))?)( +\\S+)+";
-            String removePermissions = "^\\-((global|members?|list|user)?([-@]{0,2}((?=-)\\S+|(\\d+?)))?)( +\\S+)+|删除权限((global|members?|list|user)?([-@]{0,2}((?=-)\\S+|(\\d+?)))?)( +\\S+)+";
+            String removePermissions = "^-((global|members?|list|user)?([-@]{0,2}((?=-)\\S+|(\\d+?)))?)( +\\S+)+|删除权限((global|members?|list|user)?([-@]{0,2}((?=-)\\S+|(\\d+?)))?)( +\\S+)+";
             if (Pattern.matches(addPermissions, content)) {
                 PermissionsControl.INSTANCE.addPermissions(message, subject, sender);
+                return;
+            } else if (Pattern.matches(removePermissions, content)) {
+                PermissionsControl.INSTANCE.removePermissions(message, subject, sender);
                 return;
             }
         }
@@ -138,7 +141,7 @@ public class EventServices extends SimpleListenerHost implements EventHanding {
         //todo 匹配指令
         if (sender.getId() == 572490972 && content.lastIndexOf("!String") == 0) {
             subject.sendMessage(message.toString());
-        }else if (sender.getId() == 572490972 && content.lastIndexOf("!miraicode") == 0) {
+        } else if (sender.getId() == 572490972 && content.lastIndexOf("!miraicode") == 0) {
             subject.sendMessage(message.serializeToMiraiCode());
         } else if (sender.getId() == 572490972 && content.lastIndexOf("!json") == 0) {
             subject.sendMessage(MessageChain.serializeToJsonString(message));

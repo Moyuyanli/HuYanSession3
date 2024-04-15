@@ -13,6 +13,8 @@ import net.mamoe.mirai.contact.User;
 import net.mamoe.mirai.message.data.MessageChain;
 import net.mamoe.mirai.message.data.MessageChainBuilder;
 
+import java.util.List;
+
 /**
  * 权限控制
  *
@@ -29,13 +31,14 @@ public class PermissionsControl {
 
     /**
      * 添加权限
+     * <p>
+     * +(scope|qq) (perm)
      *
      * @param messages 消息
      * @param subject  发送载体
      * @param sender   发送者
      */
     public void addPermissions(MessageChain messages, Contact subject, User sender) {
-        String content = messages.contentToString();
         String code = messages.serializeToMiraiCode();
 
         String[] split = code.split(" +");
@@ -78,6 +81,56 @@ public class PermissionsControl {
 
     }
 
+
+    /**
+     * 删除权限
+     * <p>
+     * -(scope|qq) (perm)
+     *
+     * @param messages 消息
+     * @param subject  发送载体
+     * @param sender   发送者
+     */
+    public void removePermissions(MessageChain messages, Contact subject, User sender) {
+        String code = messages.serializeToMiraiCode();
+
+        String[] split = code.split(" +");
+        Scope scope = new Scope(Scope.Type.GLOBAL);
+        ParameterSet parameterSet = new ParameterSet(scope, subject, split[0]);
+        scope = parameterSet.getScope();
+
+        Cache cacheService = CacheFactory.getInstall().getCacheService();
+        AbstractDataService dataService = DataFactory.getInstance().getDataService();
+
+        MessageChainBuilder chainBuilder = new MessageChainBuilder();
+        chainBuilder.append("为").append(scope.toString()).append("删除以下权限:\n");
+
+        int operation = 0;
+        for (int i = 1; i < split.length; i++) {
+            String s = split[i];
+            if (Constant.HUYAN_SESSION_PERM_LIST.contains(s)) {
+                List<Permission> permissions = cacheService.getPermissions(scope);
+                for (Permission permission : permissions) {
+                    if (permission.getPermCode().equals(s)) {
+                        if (dataService.deleteEntity(permission)) {
+                            cacheService.removePermissions(permission.getId());
+                            chainBuilder.append(s).append("-成功\n");
+                        } else {
+                            chainBuilder.append(s).append("-失败\n");
+                        }
+
+                    }
+                }
+                operation++;
+            }
+        }
+
+        if (operation > 0) {
+            subject.sendMessage(chainBuilder.build());
+        } else {
+            subject.sendMessage("没有识别的权限!");
+        }
+    }
 
 }
 
