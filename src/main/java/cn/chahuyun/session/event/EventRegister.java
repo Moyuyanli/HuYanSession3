@@ -5,6 +5,7 @@ import cn.chahuyun.session.constant.Constant;
 import cn.chahuyun.session.enums.PermType;
 import cn.chahuyun.session.exception.ExceptionHandle;
 import kotlin.coroutines.CoroutineContext;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import net.mamoe.mirai.event.Event;
 import net.mamoe.mirai.event.EventChannel;
@@ -19,6 +20,7 @@ import net.mamoe.mirai.event.GlobalEventChannel;
 @Slf4j(topic = Constant.LOG_TOPIC)
 public class EventRegister {
 
+    @Getter
     static EventChannel<Event> globalEvent;
 
     static HuYanSession huYanSession;
@@ -40,6 +42,5 @@ public class EventRegister {
             globalEvent.registerListenerHost(new EventServices((CoroutineContext) new ExceptionHandle()));
         }
     }
-
 
 }
