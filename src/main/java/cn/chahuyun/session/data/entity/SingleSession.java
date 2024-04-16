@@ -27,18 +27,22 @@ public class SingleSession extends BaseEntity {
      */
     @Column(name = "`trigger`")
     private String trigger;
+
     /**
      * 回复词
      */
     private String reply;
+
     /**
      * 是否为动态消息
      */
     private boolean dynamic;
+
     /**
      * 是否为本地缓存
      */
     private boolean local;
+
     /**
      * 概率触发
      */
@@ -49,6 +53,7 @@ public class SingleSession extends BaseEntity {
      */
     @Enumerated(EnumType.STRING)
     private MatchTriggerType matchType;
+
     /**
      * 消息类型
      */
