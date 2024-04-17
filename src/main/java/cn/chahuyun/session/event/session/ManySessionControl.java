@@ -16,15 +16,16 @@ import cn.chahuyun.session.utils.AnswerTool;
 import cn.chahuyun.session.utils.MessageTool;
 import lombok.extern.slf4j.Slf4j;
 import net.mamoe.mirai.contact.Contact;
+import net.mamoe.mirai.contact.Group;
 import net.mamoe.mirai.contact.User;
 import net.mamoe.mirai.event.events.MessageEvent;
-import net.mamoe.mirai.message.data.MessageChain;
-import net.mamoe.mirai.message.data.QuoteReply;
+import net.mamoe.mirai.message.data.*;
 import xyz.cssxsh.mirai.hibernate.MiraiHibernateRecorder;
 import xyz.cssxsh.mirai.hibernate.entry.MessageRecord;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 多词条控制
@@ -133,11 +134,17 @@ public class ManySessionControl {
      * @param sender   发送着
      */
     public void addGroupClassic(MessageChain messages, Contact subject, User sender) {
+        if (!(subject instanceof Group)) {
+            return;
+        }
+        Group group = (Group) subject;
+
         QuoteReply quoteReply = messages.get(QuoteReply.Key);
 
         List<MessageRecord> messageRecords;
         if (quoteReply != null) {
-            messageRecords = MiraiHibernateRecorder.INSTANCE.get(quoteReply.getSource());
+            MessageSource source = quoteReply.getSource();
+            messageRecords = MiraiHibernateRecorder.INSTANCE.get(source);
         } else {
             log.error("群典功能获取引用消息失败");
             return;
@@ -148,7 +155,29 @@ public class ManySessionControl {
             return;
         }
 
-        MessageChain originalMessage = messageRecords.get(0).toMessageChain();
+        MessageRecord messageRecord = messageRecords.get(0);
+
+        String nick = Objects.requireNonNull(group.get(messageRecord.getFromId())).getNick();
+
+        MessageChain originalMessage = messageRecord.toMessageChain();
+
+        boolean isPlain = true;
+
+        for (SingleMessage singleMessage : originalMessage) {
+            if (!(singleMessage instanceof Face) &&
+                    !(singleMessage instanceof PlainText) &&
+                    !(singleMessage instanceof At)
+            ) {
+                isPlain = false;
+                break;
+            }
+        }
+
+        if (isPlain) {
+            MessageChainBuilder builder = new MessageChainBuilder().append(new PlainText(String.format("%s说:", nick)));
+            builder.addAll(originalMessage);
+            originalMessage = builder.build();
+        }
 
         String reply = MessageChain.serializeToJsonString(originalMessage);
         boolean dynamic = DynamicMessages.includeDynamic(quoteReply.contentToString());
