@@ -132,7 +132,7 @@ public class ManySessionControl {
      * @param subject  载体
      * @param sender   发送着
      */
-    public void  addGroupClassic(MessageChain messages, Contact subject, User sender) {
+    public void addGroupClassic(MessageChain messages, Contact subject, User sender) {
         QuoteReply quoteReply = messages.get(QuoteReply.Key);
 
         List<MessageRecord> messageRecords;
@@ -170,20 +170,26 @@ public class ManySessionControl {
             }
         }
 
+        manySession.add(manySessionSubItem);
+
+
+        boolean success = true;
+
         if (manySession.getId() == null) {
             manySession.setScope(scope);
             manySession.setTrigger("群典");
             manySession.setProbability(1.0);
             manySession.setRandom(false);
             manySession.setMatchType(MatchTriggerType.PRECISION);
+            AbstractDataService dataService = DataFactory.getInstance().getDataService();
+            if (dataService.mergeEntityStatus(manySession)) {
+                cacheService.putSession(manySession);
+            } else {
+                success = false;
+            }
         }
 
-        manySession.add(manySessionSubItem);
-
-        AbstractDataService dataService = DataFactory.getInstance().getDataService();
-
-        if (dataService.mergeEntityStatus(manySession)) {
-            cacheService.putSession(manySession);
+        if (success) {
             subject.sendMessage("入典成功!");
         } else {
             subject.sendMessage("入典失败!");
