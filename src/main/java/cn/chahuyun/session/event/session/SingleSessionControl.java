@@ -50,7 +50,7 @@ public class SingleSessionControl {
 
         ParameterSet parameterSet;
         SessionType sessionType = SessionType.TEXT;
-        Scope scope = new Scope(Scope.Type.GROUP, subject.getId());
+        Scope scope = Scope.group(subject);
 
 
         if (params.length > 3) {
@@ -169,7 +169,7 @@ public class SingleSessionControl {
         String trigger = params[1];
 
         ParameterSet parameterSet;
-        Scope scope = new Scope(Scope.Type.GROUP, subject.getId());
+        Scope scope = Scope.group(subject);
         if (params.length > 2) {
             parameterSet = new ParameterSet(scope, ArrayUtil.sub(params, 2, params.length));
         } else {

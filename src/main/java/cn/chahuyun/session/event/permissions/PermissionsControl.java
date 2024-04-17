@@ -42,7 +42,7 @@ public class PermissionsControl {
         String code = messages.serializeToMiraiCode();
 
         String[] split = code.split(" +");
-        Scope scope = new Scope(Scope.Type.GLOBAL);
+        Scope scope = Scope.group(subject);
         ParameterSet parameterSet = new ParameterSet(scope, subject, split[0]);
         scope = parameterSet.getScope();
 
@@ -95,7 +95,7 @@ public class PermissionsControl {
         String code = messages.serializeToMiraiCode();
 
         String[] split = code.split(" +");
-        Scope scope = new Scope(Scope.Type.GLOBAL);
+        Scope scope = Scope.group(subject);
         ParameterSet parameterSet = new ParameterSet(scope, subject, split[0]);
         scope = parameterSet.getScope();
 
