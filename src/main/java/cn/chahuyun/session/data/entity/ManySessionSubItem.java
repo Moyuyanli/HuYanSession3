@@ -1,6 +1,7 @@
 package cn.chahuyun.session.data.entity;
 
 import cn.chahuyun.session.data.BaseEntity;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import lombok.Getter;
@@ -21,6 +22,7 @@ public class ManySessionSubItem extends BaseEntity {
     /**
      * 回复内容
      */
+    @Column(columnDefinition = "TEXT")
     private String reply;
 
     /**

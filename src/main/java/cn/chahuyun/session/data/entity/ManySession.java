@@ -7,6 +7,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -19,7 +21,7 @@ import java.util.List;
 @Getter
 @Setter
 @Table(name = "session_many")
-public class ManySession extends BaseEntity {
+public class ManySession extends BaseEntity implements Session {
 
     /**
      * 触发词
@@ -49,6 +51,7 @@ public class ManySession extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private MatchTriggerType matchType;
 
+
     /**
      * 多词条消息的子项
      * <p>
@@ -69,6 +72,26 @@ public class ManySession extends BaseEntity {
         }
     }
 
+
+    public void add(ManySessionSubItem item) {
+        if (child == null) {
+            child = new ArrayList<>() {{
+                add(item);
+            }};
+        } else {
+            child.add(item);
+        }
+    }
+
+
+    public void addAll(Collection<ManySessionSubItem> collection) {
+        if (child == null) {
+            child = new ArrayList<>(collection);
+        } else {
+            child.addAll(collection);
+        }
+    }
+
     /**
      * 根据多词条信息获取下一条消息
      *
@@ -80,7 +103,8 @@ public class ManySession extends BaseEntity {
         if (random) {
             nextSub = RandomUtil.randomInt(0, child.size());
         }
-        return child.get(nextSub);
+        return child.get(nextSub++ % child.size());
     }
+
 
 }
