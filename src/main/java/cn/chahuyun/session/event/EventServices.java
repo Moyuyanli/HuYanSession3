@@ -6,6 +6,7 @@ import cn.chahuyun.session.data.PermUser;
 import cn.chahuyun.session.data.Scope;
 import cn.chahuyun.session.data.cache.Cache;
 import cn.chahuyun.session.data.cache.CacheFactory;
+import cn.chahuyun.session.data.entity.ManySession;
 import cn.chahuyun.session.data.entity.SingleSession;
 import cn.chahuyun.session.event.api.EventHanding;
 import cn.chahuyun.session.event.permissions.PermissionsControl;
@@ -22,6 +23,7 @@ import net.mamoe.mirai.event.EventHandler;
 import net.mamoe.mirai.event.SimpleListenerHost;
 import net.mamoe.mirai.event.events.MessageEvent;
 import net.mamoe.mirai.message.data.MessageChain;
+import net.mamoe.mirai.message.data.QuoteReply;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -62,12 +64,26 @@ public class EventServices extends SimpleListenerHost implements EventHanding {
                 List<SingleSession> singleSessions = cacheService.getSingSession(scope);
                 for (SingleSession singleSession : singleSessions) {
                     if (MatchingTool.matchTrigger(singleSession, messageChain)) {
-                        new DefaultSendMessage(singleSession, messageEvent).send();
+                        DefaultSendMessage.create(singleSession, messageEvent).send();
                         if (!HuYanSession.pluginConfig.getMatchAll()) return;
                     }
                 }
             }
         }
+
+        List<Scope> matchManySessionScope = cacheService.getMatchManySessionScope();
+        for (Scope scope : matchManySessionScope) {
+            if (MatchingTool.matchScope(scope, subject, sender)) {
+                List<ManySession> manySessionList = cacheService.getManySession(scope);
+                for (ManySession manySession : manySessionList) {
+                    if (MatchingTool.matchTrigger(manySession, messageChain)) {
+                        DefaultSendMessage.create(manySession, messageEvent).send();
+                        if (!HuYanSession.pluginConfig.getMatchAll()) return;
+                    }
+                }
+            }
+        }
+
     }
 
     /**
@@ -121,6 +137,9 @@ public class EventServices extends SimpleListenerHost implements EventHanding {
             String studyManySession = "^%dct|^学习多词条";
             if (Pattern.matches(studyManySession, content)) {
                 ManySessionControl.INSTANCE.studyManySession(message, subject, sender);
+                return;
+            } else if (HuYanSession.pluginConfig.getGroupClassic() && message.contains(QuoteReply.Key) && content.contains("批准入典")) {
+                ManySessionControl.INSTANCE.addGroupClassic(message, subject, sender);
                 return;
             }
         }
