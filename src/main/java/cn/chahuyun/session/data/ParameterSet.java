@@ -2,9 +2,8 @@ package cn.chahuyun.session.data;
 
 import cn.chahuyun.session.enums.MatchTriggerType;
 import cn.chahuyun.session.enums.MessageConversionType;
+import lombok.Getter;
 import net.mamoe.mirai.contact.Contact;
-import net.mamoe.mirai.message.data.At;
-import net.mamoe.mirai.message.data.MessageChain;
 
 import java.util.regex.Pattern;
 
@@ -16,6 +15,7 @@ import static cn.chahuyun.session.HuYanSession.pluginConfig;
  * @author Moyuyanli
  * @date 2024/3/7 14:05
  */
+@Getter
 public class ParameterSet {
 
     /**
@@ -38,6 +38,10 @@ public class ParameterSet {
      * 是否被重写
      */
     private boolean rewrite = false;
+    /**
+     * 是否随机
+     */
+    private boolean random = false;
     /**
      * 回复触发概率
      */
@@ -85,7 +89,7 @@ public class ParameterSet {
                 case "全局":
                 case "global":
                 case "0":
-                    scope = new Scope(Scope.Type.GLOBAL);
+                    scope = Scope.global();
                     continue;
                 case "模糊":
                 case "2":
@@ -102,6 +106,11 @@ public class ParameterSet {
                 case "正则":
                 case "5":
                     matchTriggerType = MatchTriggerType.REGULAR;
+                    continue;
+                case "random":
+                case "sj":
+                case "随机":
+                    random = true;
                     continue;
                 case "rewrite":
                 case "%":
@@ -130,7 +139,7 @@ public class ParameterSet {
 
             if (param.contains("global-")) {
                 try {
-                    long aLong = Long.parseLong(param.replace("global-", "").replace("@",""));
+                    long aLong = Long.parseLong(param.replace("global-", "").replace("@", ""));
                     scope = new Scope(Scope.Type.GLOBAL_USER, aLong);
                 } catch (NumberFormatException e) {
                     this.exception = true;
@@ -138,7 +147,7 @@ public class ParameterSet {
                 }
             } else if (param.contains("member-")) {
                 try {
-                    long aLong = Long.parseLong(param.replace("member-", "").replace("@",""));
+                    long aLong = Long.parseLong(param.replace("member-", "").replace("@", ""));
                     scope = new Scope(Scope.Type.GROUP_MEMBER, subject.getId(), aLong);
                 } catch (NumberFormatException e) {
                     this.exception = true;
@@ -179,91 +188,4 @@ public class ParameterSet {
         }
     }
 
-    public MatchTriggerType getMatchTriggerType() {
-        return matchTriggerType;
-    }
-
-    public void setMatchTriggerType(MatchTriggerType matchTriggerType) {
-        this.matchTriggerType = matchTriggerType;
-    }
-
-    public MessageConversionType getConversionType() {
-        return conversionType;
-    }
-
-    public void setConversionType(MessageConversionType conversionType) {
-        this.conversionType = conversionType;
-    }
-
-    public boolean isLocalCache() {
-        return localCache;
-    }
-
-    public void setLocalCache(boolean localCache) {
-        this.localCache = localCache;
-    }
-
-    public boolean isDynamic() {
-        return dynamic;
-    }
-
-    public void setDynamic(boolean dynamic) {
-        this.dynamic = dynamic;
-    }
-
-    public boolean isRewrite() {
-        return rewrite;
-    }
-
-    public void setRewrite(boolean rewrite) {
-        this.rewrite = rewrite;
-    }
-
-    public double getProbability() {
-        return probability;
-    }
-
-    public void setProbability(double probability) {
-        this.probability = probability;
-    }
-
-    public Scope getScope() {
-        return scope;
-    }
-
-    public void setScope(Scope scope) {
-        this.scope = scope;
-    }
-
-    public Contact getSubject() {
-        return subject;
-    }
-
-    public void setSubject(Contact subject) {
-        this.subject = subject;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public boolean isException() {
-        return exception;
-    }
-
-    public void setException(boolean exception) {
-        this.exception = exception;
-    }
-
-    public String getExceptionMsg() {
-        return exceptionMsg;
-    }
-
-    public void setExceptionMsg(String exceptionMsg) {
-        this.exceptionMsg = exceptionMsg;
-    }
 }

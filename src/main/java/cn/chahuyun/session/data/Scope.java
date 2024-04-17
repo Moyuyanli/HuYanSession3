@@ -3,12 +3,10 @@ package cn.chahuyun.session.data;
 import cn.chahuyun.session.constant.Constant;
 import cn.chahuyun.session.data.factory.AbstractDataService;
 import cn.chahuyun.session.data.factory.DataFactory;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import net.mamoe.mirai.Bot;
-import net.mamoe.mirai.contact.Friend;
-import net.mamoe.mirai.contact.Group;
-import net.mamoe.mirai.contact.NormalMember;
-import net.mamoe.mirai.contact.Stranger;
+import net.mamoe.mirai.contact.*;
 
 import java.util.List;
 import java.util.Objects;
@@ -20,6 +18,7 @@ import java.util.Objects;
  * @date 2024/1/3 15:40
  */
 @Slf4j(topic = Constant.LOG_TOPIC)
+@Getter
 public class Scope {
 
     /*
@@ -80,6 +79,7 @@ public class Scope {
      * 分组人名称
      */
     private final String usersName;
+
     /**
      * 构建全局作用域
      *
@@ -292,50 +292,6 @@ public class Scope {
         return Objects.hash(marker, type);
     }
 
-    public String getMarker() {
-        return marker;
-    }
-
-    public Type getType() {
-        return type;
-    }
-
-    public Long getGroup() {
-        return group;
-    }
-
-    public List<Long> getGroups() {
-        return groups;
-    }
-
-    public Long getUser() {
-        return user;
-    }
-
-    public List<Long> getUsers() {
-        return users;
-    }
-
-    public Long getMember() {
-        return member;
-    }
-
-    public List<Long> getMembers() {
-        return members;
-    }
-
-    public String getListName() {
-        return listName;
-    }
-
-    public String getUsersName() {
-        return usersName;
-    }
-
-    public String getMembersName() {
-        return membersName;
-    }
-
     @Override
     public String toString() {
         List<Bot> instances = Bot.getInstances();
@@ -413,8 +369,33 @@ public class Scope {
     }
 
     /**
+     * 获取一个全局作用域
+     *
+     * @return 全局作用域
+     */
+    public static Scope global() {
+        return new Scope(Type.GLOBAL);
+    }
+
+    /**
+     * 获取一个群的作用域
+     * 如果不为群则返回全局作用域
+     *
+     * @param subject 载体
+     * @return 作用域
+     */
+    public static Scope group(Contact subject) {
+        if (subject instanceof Group) {
+            Group g = (Group) subject;
+            return new Scope(Type.GROUP, g.getId());
+        }
+        return new Scope(Type.GLOBAL);
+    }
+
+    /**
      * 作用域类型
      */
+    @Getter
     public enum Type {
         /**
          * 全局
@@ -451,9 +432,6 @@ public class Scope {
             this.valueTemplate = valueTemplate;
         }
 
-        public String getValueTemplate() {
-            return valueTemplate;
-        }
     }
 
 }
