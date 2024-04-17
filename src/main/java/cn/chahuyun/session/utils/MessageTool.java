@@ -6,10 +6,12 @@ import lombok.extern.slf4j.Slf4j;
 import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.contact.User;
 import net.mamoe.mirai.event.events.MessageEvent;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.regex.Pattern;
 
 /**
  * 消息工具
@@ -56,5 +58,29 @@ public class MessageTool {
         }
     }
 
+
+    /**
+     * 是否退出
+     * 消息事件为空也视为退出
+     *
+     * @param event 消息事件
+     * @return true 退出
+     */
+    public static boolean isQuit(MessageEvent event) {
+        if (event == null) return true;
+        String content = event.getMessage().contentToString();
+        return Pattern.matches("[!！]{3}", content);
+    }
+
+    /**
+     * 是否保存
+     *
+     * @param event 消息事件
+     * @return true 结束循环
+     */
+    public static boolean isSave(@NotNull MessageEvent event) {
+        String content = event.getMessage().contentToString();
+        return Pattern.matches("[!！]{2}", content);
+    }
 
 }
