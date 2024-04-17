@@ -20,7 +20,7 @@ import java.util.Objects;
 @Getter
 @Setter
 @Table(name = "session_single")
-public class SingleSession extends BaseEntity {
+public class SingleSession extends BaseEntity implements Session {
 
     /**
      * 触发词
@@ -31,6 +31,7 @@ public class SingleSession extends BaseEntity {
     /**
      * 回复词
      */
+    @Column(columnDefinition = "TEXT")
     private String reply;
 
     /**

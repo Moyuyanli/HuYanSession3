@@ -1,7 +1,7 @@
 package cn.chahuyun.session.send;
 
 import cn.chahuyun.session.HuYanSession;
-import cn.chahuyun.session.data.BaseEntity;
+import cn.chahuyun.session.data.entity.Session;
 import cn.chahuyun.session.data.entity.SingleSession;
 import cn.chahuyun.session.enums.MatchTriggerType;
 import cn.chahuyun.session.utils.ConversionTool;
@@ -37,7 +37,7 @@ public class DynamicMessages {
 
     @Setter
     @Getter
-    private BaseEntity messageSource;
+    private Session messageSource;
 
     private final MessageEvent event;
 

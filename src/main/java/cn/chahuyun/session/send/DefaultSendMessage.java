@@ -1,16 +1,14 @@
 package cn.chahuyun.session.send;
 
-import cn.chahuyun.session.data.entity.ManySession;
-import cn.chahuyun.session.data.entity.SingleSession;
-import cn.chahuyun.session.data.entity.TimingSession;
+import cn.chahuyun.session.data.entity.*;
 import cn.chahuyun.session.enums.SendType;
 import cn.chahuyun.session.send.api.SendMessage;
 import cn.hutool.core.util.RandomUtil;
 import net.mamoe.mirai.event.events.MessageEvent;
-import net.mamoe.mirai.message.data.Image;
 import net.mamoe.mirai.message.data.MessageChain;
 import net.mamoe.mirai.message.data.MessageChainBuilder;
-import net.mamoe.mirai.message.data.SingleMessage;
+
+import java.util.List;
 
 /**
  * 发送消息
@@ -24,7 +22,7 @@ public class DefaultSendMessage implements SendMessage {
     private final TimingSession timingSession;
     private final MessageEvent messageEvent;
     private final SendType sendType;
-    private SingleSession singleSession;
+    private final SingleSession singleSession;
 
     public DefaultSendMessage(SingleSession singleSession, MessageEvent messageEvent) {
         this.singleSession = singleSession;
@@ -38,6 +36,7 @@ public class DefaultSendMessage implements SendMessage {
         this.manySession = manySession;
         this.messageEvent = messageEvent;
         this.timingSession = null;
+        this.singleSession = null;
         this.sendType = SendType.MANY;
     }
 
@@ -47,6 +46,22 @@ public class DefaultSendMessage implements SendMessage {
         this.singleSession = null;
         this.manySession = null;
         this.sendType = SendType.TIMING;
+    }
+
+    public static <T extends Session> DefaultSendMessage create(T session, MessageEvent messageEvent) {
+        if (session instanceof SingleSession) {
+            SingleSession singleSession = (SingleSession) session;
+            return new DefaultSendMessage(singleSession, messageEvent);
+        }
+        if (session instanceof TimingSession) {
+            TimingSession timingSession = (TimingSession) session;
+            return new DefaultSendMessage(timingSession, messageEvent);
+        }
+        if (session instanceof ManySession) {
+            ManySession manySession = (ManySession) session;
+            return new DefaultSendMessage(manySession, messageEvent);
+        }
+        throw new RuntimeException("创建默认发送消息集失败!");
     }
 
 
@@ -71,6 +86,7 @@ public class DefaultSendMessage implements SendMessage {
     /**
      * 发送单一消息
      */
+    @SuppressWarnings("ConstantConditions")
     private void sendSingMessage() {
         String reply = singleSession.getReply();
         MessageChain replyMessageChain = MessageChain.deserializeFromJsonString(reply);
@@ -84,17 +100,9 @@ public class DefaultSendMessage implements SendMessage {
 
             replyMessageChain = chainBuilder.build();
         }
+
         if (singleSession.isLocal()) {
-            MessageChainBuilder chainBuilder = new MessageChainBuilder();
-            for (SingleMessage singleMessage : replyMessageChain) {
-                Image image = singleMessage instanceof Image ? ((Image) singleMessage) : null;
-                if (image == null) {
-                    chainBuilder.append(singleMessage);
-                    continue;
-                }
-                chainBuilder.append(new LocalMessage(image).replace());
-            }
-            replyMessageChain = chainBuilder.build();
+            //todo 本地缓存
         }
 
         if (singleSession.getProbability() == 1.0 ||
@@ -103,12 +111,40 @@ public class DefaultSendMessage implements SendMessage {
         }
     }
 
+    /**
+     * 发送多词条消息
+     */
+    @SuppressWarnings("ConstantConditions")
     private void sendManyMessage() {
+        List<ManySessionSubItem> child = manySession.getChild();
+        ManySessionSubItem sessionSubItem = manySession.nextMessage();
 
+        String reply = sessionSubItem.getReply();
+        MessageChain replyMessageChain = MessageChain.deserializeFromJsonString(reply);
+
+        if (sessionSubItem.isDynamic()) {
+            MessageChainBuilder chainBuilder = new MessageChainBuilder();
+
+            DynamicMessages dynamicMessages = new DynamicMessages(reply, messageEvent);
+            dynamicMessages.setMessageSource(manySession);
+            chainBuilder.append(dynamicMessages.replace());
+
+            replyMessageChain = chainBuilder.build();
+        }
+
+        if (sessionSubItem.isLocal()) {
+            //todo 本地缓存
+        }
+
+        if (manySession.getProbability() == 1.0 ||
+                RandomUtil.randomInt(1, 100) <= manySession.getProbability() * 100) {
+            messageEvent.getSubject().sendMessage(replyMessageChain);
+        }
     }
 
     private void sendTimingMessage() {
 
     }
+
 
 }

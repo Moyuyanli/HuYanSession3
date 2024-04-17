@@ -16,6 +16,6 @@ import lombok.Setter;
 @Getter
 @Setter
 @Table(name = "session_timing")
-public class TimingSession extends BaseEntity {
+public class TimingSession extends BaseEntity implements Session {
 
 }
