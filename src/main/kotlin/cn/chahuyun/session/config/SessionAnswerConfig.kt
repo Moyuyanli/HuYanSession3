@@ -24,6 +24,11 @@ object SessionAnswerConfig : AutoSavePluginConfig("answerConfig") {
         add("学不废！")
     })
 
+    @ValueDescription("修改成功的回答")
+    val updateSuccess: List<String> by value(arrayListOf<String>().apply {
+        add("又学到新东西了！")
+    })
+
     @ValueDescription("删除成功的回答")
     val removeSuccess: List<String> by value(arrayListOf<String>().apply {
         add("忘记了！")
