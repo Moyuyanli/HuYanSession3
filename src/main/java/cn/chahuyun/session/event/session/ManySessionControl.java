@@ -193,33 +193,30 @@ public class ManySessionControl {
         Cache cacheService = CacheFactory.getInstall().getCacheService();
         List<ManySession> manySessionList = cacheService.getManySession(scope);
 
+        String groupClassicName = HuYanSession.pluginConfig.getGroupClassicName();
+
         for (ManySession session : manySessionList) {
-            if (session.getTrigger().equals("群典")) {
+            if (session.getTrigger().equals(groupClassicName)) {
                 manySession = session;
             }
         }
 
         manySession.add(manySessionSubItem);
 
-
-        boolean success = true;
-
         if (manySession.getId() == null) {
             manySession.setScope(scope);
-            manySession.setTrigger("群典");
+            manySession.setTrigger(groupClassicName);
             manySession.setProbability(1.0);
             manySession.setRandom(false);
             manySession.setMatchType(MatchTriggerType.PRECISION);
-            AbstractDataService dataService = DataFactory.getInstance().getDataService();
-            if (dataService.mergeEntityStatus(manySession)) {
-                cacheService.putSession(manySession);
-            } else {
-                success = false;
-            }
         }
 
-        if (success) {
+        AbstractDataService dataService = DataFactory.getInstance().getDataService();
+
+        ManySession mergeEntity = dataService.mergeEntity(manySession);
+        if (mergeEntity.getId() != null) {
             subject.sendMessage("入典成功!");
+            cacheService.putSession(mergeEntity);
         } else {
             subject.sendMessage("入典失败!");
         }

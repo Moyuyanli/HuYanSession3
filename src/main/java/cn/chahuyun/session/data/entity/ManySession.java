@@ -79,6 +79,11 @@ public class ManySession extends BaseEntity implements Session {
                 add(item);
             }};
         } else {
+            for (ManySessionSubItem subItem : child) {
+                if (subItem.getReply().equals(item.getReply())) {
+                    return;
+                }
+            }
             child.add(item);
         }
     }
