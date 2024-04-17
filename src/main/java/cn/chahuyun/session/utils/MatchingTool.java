@@ -103,7 +103,7 @@ public class MatchingTool {
      * @return true 成功
      */
     public static boolean matchTrigger(ManySession manySession, MessageChain messages) {
-        return false;
+        return manySession.getTrigger().equals(messages.serializeToMiraiCode());
     }
 
 
