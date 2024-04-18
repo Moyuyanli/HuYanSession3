@@ -54,6 +54,11 @@ public class ManySessionControl {
         String[] params = event.getMessage().contentToString().split(" ");
         ParameterSet parameterSet = new ParameterSet(Scope.global(), subject, params);
 
+        if (parameterSet.isException()) {
+            subject.sendMessage(parameterSet.getExceptionMsg());
+            return;
+        }
+
         Scope scope = parameterSet.getScope();
 
         Cache cacheService = CacheFactory.getInstall().getCacheService();

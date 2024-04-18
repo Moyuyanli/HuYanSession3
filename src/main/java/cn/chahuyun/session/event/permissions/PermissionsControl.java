@@ -39,11 +39,17 @@ public class PermissionsControl {
      * @param sender   发送者
      */
     public void addPermissions(MessageChain messages, Contact subject, User sender) {
-        String code = messages.serializeToMiraiCode();
+        String code = messages.contentToString();
 
         String[] split = code.split(" +");
         Scope scope = Scope.group(subject);
         ParameterSet parameterSet = new ParameterSet(scope, subject, split[0]);
+
+        if (parameterSet.isException()) {
+            subject.sendMessage(parameterSet.getExceptionMsg());
+            return;
+        }
+
         scope = parameterSet.getScope();
 
         Cache cacheService = CacheFactory.getInstall().getCacheService();
@@ -92,11 +98,17 @@ public class PermissionsControl {
      * @param sender   发送者
      */
     public void removePermissions(MessageChain messages, Contact subject, User sender) {
-        String code = messages.serializeToMiraiCode();
+        String code = messages.contentToString();
 
         String[] split = code.split(" +");
         Scope scope = Scope.group(subject);
         ParameterSet parameterSet = new ParameterSet(scope, subject, split[0]);
+
+        if (parameterSet.isException()) {
+            subject.sendMessage(parameterSet.getExceptionMsg());
+            return;
+        }
+
         scope = parameterSet.getScope();
 
         Cache cacheService = CacheFactory.getInstall().getCacheService();
