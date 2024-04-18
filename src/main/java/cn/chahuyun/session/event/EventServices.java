@@ -146,8 +146,8 @@ public class EventServices extends SimpleListenerHost implements EventHanding {
 
         boolean admin = owner || permUser.isAdmin();
         if (admin) {
-            String addPermissions = "^\\+((global|members?|list|user)?([-@]{0,2}((?=-)\\S+|(\\d+?)))?)(?<=[0-9a-z])( +\\S+)+|添加权限((global|members?|list|user)?([-@]{0,2}((?=-)\\S+|(\\d+?)))?)(?<=[0-9a-z])( +\\S+)+";
-            String removePermissions = "^-((global|members?|list|user)?([-@]{0,2}((?=-)\\S+|(\\d+?)))?)(?<=[0-9a-z])( +\\S+)+|删除权限((global|members?|list|user)?([-@]{0,2}((?=-)\\S+|(\\d+?)))?)(?<=[0-9a-z])( +\\S+)+";
+            String addPermissions = "^\\+((global|members?|list|user)?([-@]{0,2}((?=-)\\S+|(\\d+?)))?)(?<=[0-9a-z]{7,})( +\\S{3,})+|添加权限((global|members?|list|user)?([-@]{0,2}((?=-)\\S+|(\\d+?)))?)(?<=[0-9a-z]{6,})( +\\S{3,})+";
+            String removePermissions = "^-((global|members?|list|user)?([-@]{0,2}((?=-)\\S+|(\\d+?)))?)(?<=[0-9a-z]{7,})( +\\S{3,})+|删除权限((global|members?|list|user)?([-@]{0,2}((?=-)\\S+|(\\d+?)))?)(?<=[0-9a-z]{6,})( +\\S{3,})+";
             if (Pattern.matches(addPermissions, content)) {
                 PermissionsControl.INSTANCE.addPermissions(message, subject, sender);
                 return;
