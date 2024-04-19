@@ -1,9 +1,11 @@
 package cn.chahuyun.session.send;
 
+import cn.chahuyun.session.constant.Constant;
 import cn.chahuyun.session.data.entity.*;
 import cn.chahuyun.session.enums.SendType;
 import cn.chahuyun.session.send.api.SendMessage;
 import cn.hutool.core.util.RandomUtil;
+import lombok.extern.slf4j.Slf4j;
 import net.mamoe.mirai.event.events.MessageEvent;
 import net.mamoe.mirai.message.data.Image;
 import net.mamoe.mirai.message.data.MessageChain;
@@ -18,6 +20,7 @@ import java.util.List;
  * @author Moyuyanli
  * @date 2024/2/26 11:24
  */
+@Slf4j(topic = Constant.LOG_TOPIC)
 public class DefaultSendMessage implements SendMessage {
 
     private final ManySession manySession;
@@ -121,6 +124,8 @@ public class DefaultSendMessage implements SendMessage {
             replyMessageChain = chainBuilder.build();
         }
 
+        log.debug("单一消息id->"+singleSession.getId());
+
         if (singleSession.getProbability() == 1.0 ||
                 RandomUtil.randomInt(1, 100) <= singleSession.getProbability() * 100) {
             messageEvent.getSubject().sendMessage(replyMessageChain);
@@ -165,6 +170,8 @@ public class DefaultSendMessage implements SendMessage {
 
             replyMessageChain = chainBuilder.build();
         }
+
+        log.debug("多词条消息id->"+sessionSubItem.getId());
 
         if (manySession.getProbability() == 1.0 ||
                 RandomUtil.randomInt(1, 100) <= manySession.getProbability() * 100) {
