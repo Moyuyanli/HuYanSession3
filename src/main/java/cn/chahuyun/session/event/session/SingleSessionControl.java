@@ -10,6 +10,7 @@ import cn.chahuyun.session.data.factory.AbstractDataService;
 import cn.chahuyun.session.data.factory.DataFactory;
 import cn.chahuyun.session.enums.MatchTriggerType;
 import cn.chahuyun.session.enums.SessionType;
+import cn.chahuyun.session.send.LocalMessage;
 import cn.chahuyun.session.utils.AnswerTool;
 import cn.hutool.core.util.ArrayUtil;
 import net.mamoe.mirai.contact.Contact;
@@ -85,11 +86,16 @@ public class SingleSessionControl {
             }
         }
 
-        if (parameterSet.isLocalCache()) {
-            //todo 本地缓存
-        }
 
         MessageChain singleMessages = MessageChain.deserializeFromMiraiCode(reply, subject);
+
+        if (parameterSet.isLocalCache()) {
+            if (!LocalMessage.localCacheImage(singleMessages)) {
+                subject.sendMessage("图片缓存失败!");
+                return;
+            }
+        }
+
         if (singleMessages.contains(Image.Key)) {
             if (singleMessages.contains(PlainText.Key)) {
                 sessionType = SessionType.MIXING;
@@ -123,7 +129,7 @@ public class SingleSessionControl {
             sessionType = SessionType.IMAGE;
         } else if (singleMessages.size() == 2 && singleMessages.contains(Image.Key) && singleMessages.contains(PlainText.Key)) {
             sessionType = SessionType.MIXING;
-        } else if (singleMessages.size() >= 1 && !singleMessages.contains(PlainText.Key)) {
+        } else if (!singleMessages.isEmpty() && !singleMessages.contains(PlainText.Key)) {
             sessionType = SessionType.OTHER;
         }
 

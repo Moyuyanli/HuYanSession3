@@ -12,6 +12,7 @@ import cn.chahuyun.session.data.factory.AbstractDataService;
 import cn.chahuyun.session.data.factory.DataFactory;
 import cn.chahuyun.session.enums.MatchTriggerType;
 import cn.chahuyun.session.send.DynamicMessages;
+import cn.chahuyun.session.send.LocalMessage;
 import cn.chahuyun.session.utils.AnswerTool;
 import cn.chahuyun.session.utils.MessageTool;
 import lombok.extern.slf4j.Slf4j;
@@ -105,7 +106,10 @@ public class ManySessionControl {
             manySessionSubItem.setDynamic(dynamic);
 
             if (HuYanSession.pluginConfig.getLocalCache()) {
-                //todo  图片缓存
+                if (!LocalMessage.localCacheImage(event.getMessage())) {
+                    subject.sendMessage("添加失败，图片缓存失败,请重新添加！");
+                    continue;
+                }
             } else {
                 manySessionSubItem.setLocal(false);
             }
@@ -187,9 +191,21 @@ public class ManySessionControl {
         String reply = MessageChain.serializeToJsonString(originalMessage);
         boolean dynamic = DynamicMessages.includeDynamic(quoteReply.contentToString());
 
+
         ManySessionSubItem manySessionSubItem = new ManySessionSubItem();
         manySessionSubItem.setReply(reply);
-        manySessionSubItem.setLocal(false);
+
+        if (HuYanSession.pluginConfig.getLocalCache()) {
+            if (!LocalMessage.localCacheImage(originalMessage)) {
+                subject.sendMessage("入典失败!图片缓存失败!");
+                return;
+            } else {
+                manySessionSubItem.setLocal(true);
+            }
+        } else {
+            manySessionSubItem.setLocal(false);
+        }
+
         manySessionSubItem.setDynamic(dynamic);
 
         ManySession manySession = new ManySession();

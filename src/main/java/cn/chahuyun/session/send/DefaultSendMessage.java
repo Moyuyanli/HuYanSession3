@@ -5,8 +5,10 @@ import cn.chahuyun.session.enums.SendType;
 import cn.chahuyun.session.send.api.SendMessage;
 import cn.hutool.core.util.RandomUtil;
 import net.mamoe.mirai.event.events.MessageEvent;
+import net.mamoe.mirai.message.data.Image;
 import net.mamoe.mirai.message.data.MessageChain;
 import net.mamoe.mirai.message.data.MessageChainBuilder;
+import net.mamoe.mirai.message.data.SingleMessage;
 
 import java.util.List;
 
@@ -86,7 +88,7 @@ public class DefaultSendMessage implements SendMessage {
     /**
      * 发送单一消息
      */
-    @SuppressWarnings("ConstantConditions")
+    @SuppressWarnings("all")
     private void sendSingMessage() {
         String reply = singleSession.getReply();
         MessageChain replyMessageChain = MessageChain.deserializeFromJsonString(reply);
@@ -102,7 +104,21 @@ public class DefaultSendMessage implements SendMessage {
         }
 
         if (singleSession.isLocal()) {
-            //todo 本地缓存
+            MessageChainBuilder chainBuilder = new MessageChainBuilder();
+
+            for (SingleMessage singleMessage : replyMessageChain) {
+                if (singleMessage instanceof Image) {
+                    Image message = (Image) singleMessage;
+
+                    LocalMessage localMessage = new LocalMessage(message, messageEvent.getSubject());
+                    chainBuilder.append(localMessage.replace());
+
+                } else {
+                    chainBuilder.append(singleMessage);
+                }
+            }
+
+            replyMessageChain = chainBuilder.build();
         }
 
         if (singleSession.getProbability() == 1.0 ||
@@ -114,7 +130,7 @@ public class DefaultSendMessage implements SendMessage {
     /**
      * 发送多词条消息
      */
-    @SuppressWarnings("ConstantConditions")
+    @SuppressWarnings("all")
     private void sendManyMessage() {
         List<ManySessionSubItem> child = manySession.getChild();
         ManySessionSubItem sessionSubItem = manySession.nextMessage();
@@ -133,7 +149,21 @@ public class DefaultSendMessage implements SendMessage {
         }
 
         if (sessionSubItem.isLocal()) {
-            //todo 本地缓存
+            MessageChainBuilder chainBuilder = new MessageChainBuilder();
+
+            for (SingleMessage singleMessage : replyMessageChain) {
+                if (singleMessage instanceof Image) {
+                    Image message = (Image) singleMessage;
+
+                    LocalMessage localMessage = new LocalMessage(message, messageEvent.getSubject());
+                    chainBuilder.append(localMessage.replace());
+
+                } else {
+                    chainBuilder.append(singleMessage);
+                }
+            }
+
+            replyMessageChain = chainBuilder.build();
         }
 
         if (manySession.getProbability() == 1.0 ||
