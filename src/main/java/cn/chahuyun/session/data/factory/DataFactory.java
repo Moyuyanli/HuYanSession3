@@ -15,21 +15,21 @@ import org.hibernate.SessionFactory;
 public class DataFactory {
 
     /**
-     * -- GETTER --
+     *
      *  获取数据工厂实例
      *
      * @return 数据工厂
      */
-    @Getter
+
     private static DataFactory instance;
 
     /**
-     * -- GETTER --
+     *
      *  获取数据服务
      *
      * @return DataService 数据服务
      */
-    @Getter
+
     private final AbstractDataService dataService;
 
     private DataFactory(SessionFactory sessionFactory) {
@@ -56,4 +56,11 @@ public class DataFactory {
         return new DefaultDataService(sessionFactory);
     }
 
+    public static DataFactory getInstance() {
+        return instance;
+    }
+
+    public AbstractDataService getDataService() {
+        return dataService;
+    }
 }
