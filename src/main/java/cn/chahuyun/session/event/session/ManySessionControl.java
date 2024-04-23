@@ -6,8 +6,7 @@ import cn.chahuyun.session.data.ParameterSet;
 import cn.chahuyun.session.data.Scope;
 import cn.chahuyun.session.data.cache.Cache;
 import cn.chahuyun.session.data.cache.CacheFactory;
-import cn.chahuyun.session.data.entity.ManySession;
-import cn.chahuyun.session.data.entity.ManySessionSubItem;
+import cn.chahuyun.session.data.entity.*;
 import cn.chahuyun.session.data.factory.AbstractDataService;
 import cn.chahuyun.session.data.factory.DataFactory;
 import cn.chahuyun.session.enums.MatchTriggerType;
@@ -44,7 +43,18 @@ public class ManySessionControl {
     }
 
     public void studyManySession(MessageChain messages, Contact subject, User sender) {
-        String trigger = messages.serializeToMiraiCode();
+        String[] split = messages.serializeToMiraiCode().split(" ");
+        String trigger;
+        if (split.length == 1) {
+            subject.sendMessage("请输入触发词:");
+            MessageEvent event = MessageTool.nextUserMessage(subject, sender);
+            if (MessageTool.isQuit(event)) {
+                return;
+            }
+            trigger = event.getMessage().serializeToMiraiCode();
+        } else {
+            trigger = split[1];
+        }
 
         subject.sendMessage("请输入参数:");
         MessageEvent event = MessageTool.nextUserMessage(subject, sender);
@@ -241,6 +251,18 @@ public class ManySessionControl {
         } else {
             subject.sendMessage("入典失败!");
         }
+    }
+
+    /**
+     * 刷新内存中的缓存
+     * @param subject 消息载体
+     */
+    public void refresh(Contact subject) {
+        AbstractDataService dataService = DataFactory.getInstance().getDataService();
+        Cache cacheService = CacheFactory.getInstall().getCacheService();
+        List<ManySession> manySessions = dataService.selectListEntity(ManySession.class, "from ManySession");
+        manySessions.forEach(cacheService::putSession);
+        subject.sendMessage("多词条缓存刷新成功!");
     }
 
 }

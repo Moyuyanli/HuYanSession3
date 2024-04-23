@@ -134,14 +134,18 @@ public class EventServices extends SimpleListenerHost implements EventHanding {
 
         boolean dct = owner || permUser.isAdmin() || permUser.isSession() || permUser.isDct();
         if (dct) {
-            String studyManySession = "^%dct|^学习多词条";
+            String refreshManySession = "%%dct|刷新多词条";
+            String studyManySession = "^%dct (\\S+)?|^学习多词条 (\\S+)?";
             if (Pattern.matches(studyManySession, content)) {
                 ManySessionControl.INSTANCE.studyManySession(message, subject, sender);
                 return;
             } else if (HuYanSession.pluginConfig.getGroupClassic() && message.contains(QuoteReply.Key) && content.contains("批准入典")) {
                 ManySessionControl.INSTANCE.addGroupClassic(message, subject, sender);
                 return;
+            } else if (Pattern.matches(refreshManySession, content)) {
+                ManySessionControl.INSTANCE.refresh(subject);
             }
+
         }
 
         boolean admin = owner || permUser.isAdmin();
