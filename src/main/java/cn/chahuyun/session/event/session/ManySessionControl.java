@@ -63,7 +63,7 @@ public class ManySessionControl {
         }
 
         String[] params = event.getMessage().contentToString().split(" ");
-        ParameterSet parameterSet = new ParameterSet(Scope.global(), subject, params);
+        ParameterSet parameterSet = new ParameterSet(Scope.group(subject), subject, params);
 
         if (parameterSet.isException()) {
             subject.sendMessage(parameterSet.getExceptionMsg());
@@ -76,6 +76,7 @@ public class ManySessionControl {
         List<ManySession> manySessions = cacheService.getManySession(scope);
 
         ManySession manySession = new ManySession();
+        manySession.setTrigger(trigger);
 
         for (ManySession session : manySessions) {
             if (session.getTrigger().equals(trigger)) {

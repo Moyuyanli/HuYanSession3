@@ -103,7 +103,22 @@ public class MatchingTool {
      * @return true 成功
      */
     public static boolean matchTrigger(ManySession manySession, MessageChain messages) {
-        return manySession.getTrigger().equals(messages.serializeToMiraiCode());
+        String code = messages.serializeToMiraiCode();
+        String trigger = manySession.getTrigger();
+        switch (manySession.getMatchType()) {
+            case PRECISION:
+                return code.equals(trigger);
+            case FUZZY:
+                return code.contains(trigger);
+            case HEAD:
+                return code.startsWith(trigger);
+            case TAIL:
+                return code.endsWith(trigger);
+            case REGULAR:
+                return Pattern.matches(trigger, code);
+            default:
+                return false;
+        }
     }
 
 
