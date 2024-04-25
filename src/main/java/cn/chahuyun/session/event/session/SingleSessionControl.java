@@ -12,9 +12,11 @@ import cn.chahuyun.session.enums.MatchTriggerType;
 import cn.chahuyun.session.enums.SessionType;
 import cn.chahuyun.session.send.LocalMessage;
 import cn.chahuyun.session.utils.AnswerTool;
+import cn.chahuyun.session.utils.MessageTool;
 import cn.hutool.core.util.ArrayUtil;
 import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.contact.User;
+import net.mamoe.mirai.event.events.MessageEvent;
 import net.mamoe.mirai.message.data.*;
 
 import java.util.Iterator;
@@ -158,6 +160,93 @@ public class SingleSessionControl {
             result = AnswerTool.getAnswer(answerConfig.getStudyFailed());
         }
         subject.sendMessage(result);
+    }
+
+
+    /**
+     * 对话的方式学习
+     * %xx( +trigger)?
+     * @param messages 消息
+     * @param subject  消息事件主体
+     * @param sender   发送着
+     */
+    public void studyDialogue(MessageChain messages, Contact subject, User sender) {
+        String[] split = messages.serializeToMiraiCode().split(" ");
+        String trigger;
+        if (split.length == 1) {
+            subject.sendMessage("请输入触发词:");
+            MessageEvent event = MessageTool.nextUserMessage(subject, sender);
+            if (MessageTool.isQuit(event)) {
+                return;
+            }
+            trigger = event.getMessage().serializeToMiraiCode();
+        } else {
+            trigger = split[1];
+        }
+
+        subject.sendMessage("请输入参数:");
+        MessageEvent event = MessageTool.nextUserMessage(subject, sender);
+        if (MessageTool.isQuit(event)) {
+            return;
+        }
+
+        String[] params = event.getMessage().contentToString().split(" ");
+        ParameterSet parameterSet = new ParameterSet(Scope.group(subject), subject, params);
+
+        if (parameterSet.isException()) {
+            subject.sendMessage(parameterSet.getExceptionMsg());
+            return;
+        }
+
+        Scope scope = parameterSet.getScope();
+
+        Cache cacheService = CacheFactory.getInstall().getCacheService();
+        List<SingleSession> singSession = cacheService.getSingSession(scope);
+
+        SingleSession singleSession = new SingleSession();
+        singleSession.setTrigger(trigger);
+
+        if (parameterSet.isRewrite()) {
+            for (SingleSession session : singSession) {
+                if (session.getTrigger().equals(singleSession.getTrigger())) {
+                    singleSession = session;
+                    break;
+                }
+            }
+        }
+
+        subject.sendMessage("请输入回复消息:");
+        event = MessageTool.nextUserMessage(subject, sender);
+        if (MessageTool.isQuit(event)) {
+            return;
+        }
+
+        MessageChain message = event.getMessage();
+
+        if (parameterSet.isLocalCache()) {
+            if (LocalMessage.localCacheImage(message)) {
+                subject.sendMessage("学习失败,本地图片缓存失败!");
+                return;
+            }
+        }
+
+        String reply = MessageChain.serializeToJsonString(event.getMessage());
+
+        singleSession.setReply(reply);
+        singleSession.setScope(scope);
+        singleSession.setDynamic(parameterSet.isDynamic());
+        singleSession.setMatchType(parameterSet.getMatchTriggerType());
+        singleSession.setLocal(parameterSet.isLocalCache());
+
+        String result;
+        if (DataFactory.getInstance().getDataService().mergeEntityStatus(singleSession)) {
+            result = AnswerTool.getAnswer(answerConfig.getStudySuccess());
+            cacheService.putSession(singleSession);
+        } else {
+            result = AnswerTool.getAnswer(answerConfig.getStudyFailed());
+        }
+        subject.sendMessage(result);
+
     }
 
     /**

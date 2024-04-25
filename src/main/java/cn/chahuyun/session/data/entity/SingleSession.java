@@ -59,7 +59,7 @@ public class SingleSession extends BaseEntity implements Session {
      * 消息类型
      */
     @Enumerated(EnumType.STRING)
-    private SessionType sessionType;
+    private SessionType sessionType = SessionType.TEXT;
 
     /**
      * 转换类型

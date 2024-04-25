@@ -120,6 +120,7 @@ public class EventServices extends SimpleListenerHost implements EventHanding {
         boolean hh = owner || permUser.isAdmin() || permUser.isSession() || permUser.isHh();
         if (hh) {
             String studySimpleSession = "^xx( +\\S+){2,7}|^学习( +\\S+){2,7}";
+            String studyDialogueSimpleSession = "^%xx( +\\S+)?|^学习对话( +\\S+)?";
             String removeSimpleSession = "^-xx( +\\S+){1,2}|^删除( +\\S+){1,2}";
             if (Pattern.matches(studySimpleSession, content)) {
                 log.debug("简单学习指令");
@@ -129,20 +130,27 @@ public class EventServices extends SimpleListenerHost implements EventHanding {
                 log.debug("简单删除指令");
                 SingleSessionControl.INSTANCE.removeSimpleSingleSession(message, subject, sender);
                 return;
+            } else if (Pattern.matches(studyDialogueSimpleSession, content)) {
+                log.debug("对话学习指令");
+                SingleSessionControl.INSTANCE.studyDialogue(message, subject, sender);
+                return;
             }
         }
 
         boolean dct = owner || permUser.isAdmin() || permUser.isSession() || permUser.isDct();
         if (dct) {
             String refreshManySession = "%%dct|刷新多词条";
-            String studyManySession = "^%dct (\\S+)?|^学习多词条 (\\S+)?";
+            String studyManySession = "^%dct( +\\S+)?|^学习多词条( +\\S+)?";
             if (Pattern.matches(studyManySession, content)) {
+                log.debug("学习多词条指令");
                 ManySessionControl.INSTANCE.studyManySession(message, subject, sender);
                 return;
             } else if (HuYanSession.pluginConfig.getGroupClassic() && message.contains(QuoteReply.Key) && content.contains("批准入典")) {
+                log.debug("群典指令");
                 ManySessionControl.INSTANCE.addGroupClassic(message, subject, sender);
                 return;
             } else if (Pattern.matches(refreshManySession, content)) {
+                log.debug("刷新多词条指令");
                 ManySessionControl.INSTANCE.refresh(subject);
             }
 
@@ -153,9 +161,11 @@ public class EventServices extends SimpleListenerHost implements EventHanding {
             String addPermissions = "^\\+((global|members?|list|user)?([-@]{0,2}((?=-)\\S+|(\\d+?)))?)(?<=[0-9a-z]{7,})( +\\S{3,})+|添加权限((global|members?|list|user)?([-@]{0,2}((?=-)\\S+|(\\d+?)))?)(?<=[0-9a-z]{6,})( +\\S{3,})+";
             String removePermissions = "^-((global|members?|list|user)?([-@]{0,2}((?=-)\\S+|(\\d+?)))?)(?<=[0-9a-z]{7,})( +\\S{3,})+|删除权限((global|members?|list|user)?([-@]{0,2}((?=-)\\S+|(\\d+?)))?)(?<=[0-9a-z]{6,})( +\\S{3,})+";
             if (Pattern.matches(addPermissions, content)) {
+                log.debug("添加权限指令");
                 PermissionsControl.INSTANCE.addPermissions(message, subject, sender);
                 return;
             } else if (Pattern.matches(removePermissions, content)) {
+                log.debug("删除权限指令");
                 PermissionsControl.INSTANCE.removePermissions(message, subject, sender);
                 return;
             }
