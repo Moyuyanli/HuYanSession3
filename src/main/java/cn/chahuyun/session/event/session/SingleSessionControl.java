@@ -224,7 +224,7 @@ public class SingleSessionControl {
         MessageChain message = event.getMessage();
 
         if (parameterSet.isLocalCache()) {
-            if (LocalMessage.localCacheImage(message)) {
+            if (!LocalMessage.localCacheImage(message)) {
                 subject.sendMessage("学习失败,本地图片缓存失败!");
                 return;
             }
