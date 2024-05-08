@@ -254,6 +254,11 @@ public class ManySessionControl {
         }
     }
 
+    public void removeManySession(MessageChain messages, Contact subject, User sender) {
+
+    }
+
+
     /**
      * 刷新内存中的缓存
      * @param subject 消息载体
