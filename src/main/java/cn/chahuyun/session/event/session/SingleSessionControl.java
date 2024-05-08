@@ -5,6 +5,7 @@ import cn.chahuyun.session.data.Scope;
 import cn.chahuyun.session.data.cache.Cache;
 import cn.chahuyun.session.data.cache.CacheFactory;
 import cn.chahuyun.session.data.cache.MemoryCache;
+import cn.chahuyun.session.data.entity.ManySession;
 import cn.chahuyun.session.data.entity.SingleSession;
 import cn.chahuyun.session.data.factory.AbstractDataService;
 import cn.chahuyun.session.data.factory.DataFactory;
@@ -37,7 +38,7 @@ public class SingleSessionControl {
 
     /**
      * 简单学习消息<br>
-     * xx trigger reply [scope|dynamic|rewrite|probability|localCache|matchTriggerType|conversionType]
+     * %xx trigger reply [scope|dynamic|rewrite|probability|localCache|matchTriggerType|conversionType]
      *
      * @param messages 消息
      * @param subject  消息事件主体
@@ -306,6 +307,14 @@ public class SingleSessionControl {
                 }
             }
         }
+    }
+
+    public void refresh(Contact subject) {
+        AbstractDataService dataService = DataFactory.getInstance().getDataService();
+        Cache cacheService = CacheFactory.getInstall().getCacheService();
+        List<SingleSession> SingleSessions = dataService.selectListEntity(SingleSession.class, "from SingleSession ");
+        SingleSessions.forEach(cacheService::putSession);
+        subject.sendMessage("单一缓存刷新成功!");
     }
 
 

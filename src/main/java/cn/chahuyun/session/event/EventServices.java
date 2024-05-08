@@ -119,9 +119,10 @@ public class EventServices extends SimpleListenerHost implements EventHanding {
 
         boolean hh = owner || permUser.isAdmin() || permUser.isSession() || permUser.isHh();
         if (hh) {
-            String studySimpleSession = "^xx( +\\S+){2,7}|^学习( +\\S+){2,7}";
+            String studySimpleSession = "^%xx( +\\S+){2,7}|^学习( +\\S+){2,7}";
             String studyDialogueSimpleSession = "^%xx( +\\S+)?|^学习对话( +\\S+)?";
             String removeSimpleSession = "^-xx( +\\S+){1,2}|^删除( +\\S+){1,2}";
+            String refreshSimpleSession = "^%%xx|^刷新多词条";
             if (Pattern.matches(studySimpleSession, content)) {
                 log.debug("简单学习指令");
                 SingleSessionControl.INSTANCE.studySimpleSingleSession(message, subject, sender);
@@ -134,6 +135,10 @@ public class EventServices extends SimpleListenerHost implements EventHanding {
                 log.debug("对话学习指令");
                 SingleSessionControl.INSTANCE.studyDialogue(message, subject, sender);
                 return;
+            } else if (Pattern.matches(refreshSimpleSession, content)) {
+                log.debug("刷新对话指令");
+                SingleSessionControl.INSTANCE.refresh(subject);
+                return;
             }
         }
 
@@ -141,6 +146,7 @@ public class EventServices extends SimpleListenerHost implements EventHanding {
         if (dct) {
             String refreshManySession = "%%dct|刷新多词条";
             String studyManySession = "^%dct( +\\S+)?|^学习多词条( +\\S+)?";
+            String removeManySession = "-dct( +\\S+)+|^删除多词条( +\\S+)+";
             if (Pattern.matches(studyManySession, content)) {
                 log.debug("学习多词条指令");
                 ManySessionControl.INSTANCE.studyManySession(message, subject, sender);
@@ -149,9 +155,14 @@ public class EventServices extends SimpleListenerHost implements EventHanding {
                 log.debug("群典指令");
                 ManySessionControl.INSTANCE.addGroupClassic(message, subject, sender);
                 return;
+            } else if (Pattern.matches(removeManySession, content)) {
+                log.debug("删除多词条");
+                ManySessionControl.INSTANCE.removeManySession(message, subject, sender);
+                return;
             } else if (Pattern.matches(refreshManySession, content)) {
                 log.debug("刷新多词条指令");
                 ManySessionControl.INSTANCE.refresh(subject);
+                return;
             }
 
         }

@@ -65,7 +65,7 @@ public class SingleSession extends BaseEntity implements Session {
      * 转换类型
      */
     @Enumerated(EnumType.STRING)
-    private MessageConversionType conversionType;
+    private MessageConversionType conversionType = MessageConversionType.MIRAI_CODE;
 
     public SingleSession() {
     }
