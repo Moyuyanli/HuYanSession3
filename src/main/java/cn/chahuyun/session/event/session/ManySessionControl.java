@@ -6,7 +6,8 @@ import cn.chahuyun.session.data.ParameterSet;
 import cn.chahuyun.session.data.Scope;
 import cn.chahuyun.session.data.cache.Cache;
 import cn.chahuyun.session.data.cache.CacheFactory;
-import cn.chahuyun.session.data.entity.*;
+import cn.chahuyun.session.data.entity.ManySession;
+import cn.chahuyun.session.data.entity.ManySessionSubItem;
 import cn.chahuyun.session.data.factory.AbstractDataService;
 import cn.chahuyun.session.data.factory.DataFactory;
 import cn.chahuyun.session.enums.MatchTriggerType;
@@ -15,6 +16,7 @@ import cn.chahuyun.session.send.LocalMessage;
 import cn.chahuyun.session.utils.AnswerTool;
 import cn.chahuyun.session.utils.MessageTool;
 import lombok.extern.slf4j.Slf4j;
+import lombok.val;
 import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.contact.Group;
 import net.mamoe.mirai.contact.User;
@@ -34,6 +36,7 @@ import java.util.Objects;
  *
  * @author Moyuyanli
  */
+@val
 @Slf4j(topic = Constant.LOG_TOPIC)
 public class ManySessionControl {
 
@@ -254,13 +257,100 @@ public class ManySessionControl {
         }
     }
 
+    /**
+     * 删除多词条
+     * -dct (trigger|id-) (id)?
+     *
+     * @param messages 消息
+     * @param subject  载体
+     * @param sender   发送者
+     */
     public void removeManySession(MessageChain messages, Contact subject, User sender) {
+        String code = messages.serializeToMiraiCode();
+        String[] split = code.split(" +");
 
+        int id;
+
+        Cache cacheService = CacheFactory.getInstall().getCacheService();
+        Scope scope = Scope.group(subject);
+
+        Boolean type = null;
+
+        ManySession manySession = null;
+        if (split[1].contains("id-")) {
+            id = Integer.parseInt(split[1].replace("id-", ""));
+            manySession = cacheService.getManySession(id);
+            type = false;
+        } else {
+            List<ManySession> manySessions = cacheService.getManySession(scope);
+            for (ManySession session : manySessions) {
+                if (session.getTrigger().equals(split[1])) {
+                    manySession = session;
+                    type = true;
+                }
+            }
+            if (type == null) {
+                subject.sendMessage("没有该触发词的多词条集!");
+                return;
+            }
+        }
+
+        AbstractDataService dataService = DataFactory.getInstance().getDataService();
+
+        if (type || split.length == 2) {
+            subject.sendMessage("请输入双‘!’确认删除多词条集!");
+            MessageEvent nextUserMessage = MessageTool.nextUserMessage(subject, sender);
+            String content;
+            if (nextUserMessage != null) {
+                content = nextUserMessage.getMessage().contentToString();
+            } else {
+                return;
+            }
+            if (content.equals("!!") || content.equals("！！")) {
+                if (dataService.deleteEntity(manySession)) {
+                    cacheService.removeManySession(manySession.getId());
+                    subject.sendMessage(AnswerTool.getAnswer(HuYanSession.answerConfig.getRemoveSuccess()));
+                } else {
+                    subject.sendMessage(AnswerTool.getAnswer(HuYanSession.answerConfig.getRemoveFailed()));
+                }
+            }
+            return;
+        }
+
+
+        val items = new ArrayList<ManySessionSubItem>();
+        for (int i = 2; i < split.length; i++) {
+            int index = i;
+            manySession.getChild().forEach(item -> {
+                if (item.getId() == Integer.parseInt(split[index]))
+                    items.add(item);
+            });
+        }
+
+        int success = 0;
+        int failed = 0;
+        for (ManySessionSubItem item : items) {
+            if (dataService.deleteEntity(item)) {
+                manySession.getChild().remove(item);
+                cacheService.putSession(manySession);
+                success++;
+            } else {
+                failed++;
+            }
+        }
+
+        MessageChainBuilder builder = new MessageChainBuilder();
+        builder.append("对于多词条集 '").append(manySession.getTrigger()).append("'子集进行删除:\n")
+                .append("成功:").append(String.valueOf(success)).append("条\n")
+                .append("失败:").append(String.valueOf(failed)).append("条");
+
+        subject.sendMessage(builder.build());
     }
 
 
     /**
      * 刷新内存中的缓存
+     *
      * @param subject 消息载体
      */
     public void refresh(Contact subject) {
