@@ -6,11 +6,9 @@ import cn.chahuyun.session.enums.SendType;
 import cn.chahuyun.session.send.api.SendMessage;
 import cn.hutool.core.util.RandomUtil;
 import lombok.extern.slf4j.Slf4j;
+import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.event.events.MessageEvent;
-import net.mamoe.mirai.message.data.Image;
-import net.mamoe.mirai.message.data.MessageChain;
-import net.mamoe.mirai.message.data.MessageChainBuilder;
-import net.mamoe.mirai.message.data.SingleMessage;
+import net.mamoe.mirai.message.data.*;
 
 import java.util.List;
 
@@ -93,6 +91,8 @@ public class DefaultSendMessage implements SendMessage {
      */
     @SuppressWarnings("all")
     private void sendSingMessage() {
+        Contact subject = messageEvent.getSubject();
+
         String reply = singleSession.getReply();
         MessageChain replyMessageChain = MessageChain.deserializeFromJsonString(reply);
 
@@ -106,6 +106,7 @@ public class DefaultSendMessage implements SendMessage {
             replyMessageChain = chainBuilder.build();
         }
 
+
         if (singleSession.isLocal()) {
             MessageChainBuilder chainBuilder = new MessageChainBuilder();
 
@@ -113,7 +114,7 @@ public class DefaultSendMessage implements SendMessage {
                 if (singleMessage instanceof Image) {
                     Image message = (Image) singleMessage;
 
-                    LocalMessage localMessage = new LocalMessage(message, messageEvent.getSubject());
+                    LocalMessage localMessage = new LocalMessage(message, subject);
                     chainBuilder.append(localMessage.replace());
 
                 } else {
@@ -124,11 +125,11 @@ public class DefaultSendMessage implements SendMessage {
             replyMessageChain = chainBuilder.build();
         }
 
-        log.debug("单一消息id->"+singleSession.getId());
+        log.debug("单一消息id->" + singleSession.getId());
 
         if (singleSession.getProbability() == 1.0 ||
                 RandomUtil.randomInt(1, 100) <= singleSession.getProbability() * 100) {
-            messageEvent.getSubject().sendMessage(replyMessageChain);
+            subject.sendMessage(replyMessageChain);
         }
     }
 
@@ -137,6 +138,8 @@ public class DefaultSendMessage implements SendMessage {
      */
     @SuppressWarnings("all")
     private void sendManyMessage() {
+        Contact subject = messageEvent.getSubject();
+
         List<ManySessionSubItem> child = manySession.getChild();
         ManySessionSubItem sessionSubItem = manySession.nextMessage();
 
@@ -160,7 +163,7 @@ public class DefaultSendMessage implements SendMessage {
                 if (singleMessage instanceof Image) {
                     Image message = (Image) singleMessage;
 
-                    LocalMessage localMessage = new LocalMessage(message, messageEvent.getSubject());
+                    LocalMessage localMessage = new LocalMessage(message, subject);
                     chainBuilder.append(localMessage.replace());
 
                 } else {
@@ -171,11 +174,22 @@ public class DefaultSendMessage implements SendMessage {
             replyMessageChain = chainBuilder.build();
         }
 
-        log.debug("多词条消息id->"+sessionSubItem.getId());
+        if (replyMessageChain.contains(ForwardMessage.Key)) {
+            ForwardMessage forwardMessage = replyMessageChain.get(ForwardMessage.Key);
+            List<ForwardMessage.Node> nodeList = forwardMessage.getNodeList();
+            ForwardMessageBuilder forward = new ForwardMessageBuilder(subject, nodeList.size());
+            for (ForwardMessage.INode iNode : nodeList) {
+                forward.add(iNode);
+            }
+            forward.setDisplayStrategy(ForwardMessage.DisplayStrategy.Default);
+            replyMessageChain = new MessageChainBuilder().append(forward.build()).build();
+        }
+
+        log.debug("多词条消息id->" + sessionSubItem.getId());
 
         if (manySession.getProbability() == 1.0 ||
                 RandomUtil.randomInt(1, 100) <= manySession.getProbability() * 100) {
-            messageEvent.getSubject().sendMessage(replyMessageChain);
+            subject.sendMessage(replyMessageChain);
         }
     }
 

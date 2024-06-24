@@ -99,9 +99,7 @@ public class LocalMessage {
                         log.error("保存图片到本地缓存时发生错误:", e);
                         return false;
                     }
-
                 }
-
             }
         }
 
