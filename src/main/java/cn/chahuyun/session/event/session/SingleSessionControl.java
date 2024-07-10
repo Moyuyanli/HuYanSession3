@@ -5,7 +5,6 @@ import cn.chahuyun.session.data.Scope;
 import cn.chahuyun.session.data.cache.Cache;
 import cn.chahuyun.session.data.cache.CacheFactory;
 import cn.chahuyun.session.data.cache.MemoryCache;
-import cn.chahuyun.session.data.entity.ManySession;
 import cn.chahuyun.session.data.entity.SingleSession;
 import cn.chahuyun.session.data.factory.AbstractDataService;
 import cn.chahuyun.session.data.factory.DataFactory;
@@ -237,6 +236,8 @@ public class SingleSessionControl {
         singleSession.setScope(scope);
         singleSession.setDynamic(parameterSet.isDynamic());
         singleSession.setMatchType(parameterSet.getMatchTriggerType());
+        singleSession.setConversionType(parameterSet.getConversionType());
+        singleSession.setProbability(parameterSet.getProbability());
         singleSession.setLocal(parameterSet.isLocalCache());
 
         String result;
