@@ -17,6 +17,7 @@ import cn.chahuyun.session.utils.MatchingTool;
 import cn.chahuyun.session.utils.PermTool;
 import kotlin.coroutines.CoroutineContext;
 import lombok.extern.slf4j.Slf4j;
+import net.mamoe.mirai.Bot;
 import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.contact.User;
 import net.mamoe.mirai.event.EventHandler;
@@ -99,6 +100,13 @@ public class EventServices extends SimpleListenerHost implements EventHanding {
         MessageChain message = messageEvent.getMessage();
         String content = message.contentToString();
 
+        List<Bot> bots = Bot.getInstances();
+        for (Bot bot : bots) {
+            if (bot.getId() == sender.getId()) {
+                return;
+            }
+        }
+
         boolean owner = sender.getId() == HuYanSession.pluginConfig.getOwner();
         PermUser permUser = new PermUser();
 
@@ -139,6 +147,10 @@ public class EventServices extends SimpleListenerHost implements EventHanding {
                 log.debug("刷新对话指令");
                 SingleSessionControl.INSTANCE.refresh(subject);
                 return;
+            } else if (message.contains(QuoteReply.Key) && (content.contains("删除") || content.contains("sc"))) {
+                log.debug("删除对话指令");
+                SingleSessionControl.INSTANCE.removeSimpleSingleSessionFormQuery(message,subject);
+                return;
             }
         }
 
@@ -162,6 +174,10 @@ public class EventServices extends SimpleListenerHost implements EventHanding {
             } else if (Pattern.matches(refreshManySession, content)) {
                 log.debug("刷新多词条指令");
                 ManySessionControl.INSTANCE.refresh(subject);
+                return;
+            } else if (message.contains(QuoteReply.Key) && (content.contains("删除") || content.contains("sc"))) {
+                log.debug("删除多词条指令");
+                ManySessionControl.INSTANCE.removeManySessionFormQuery(message,subject);
                 return;
             }
 

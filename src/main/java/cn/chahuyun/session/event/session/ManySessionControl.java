@@ -13,6 +13,8 @@ import cn.chahuyun.session.data.factory.DataFactory;
 import cn.chahuyun.session.enums.MatchTriggerType;
 import cn.chahuyun.session.send.DynamicMessages;
 import cn.chahuyun.session.send.LocalMessage;
+import cn.chahuyun.session.send.cache.SendCacheEntity;
+import cn.chahuyun.session.send.cache.SendMessageCache;
 import cn.chahuyun.session.utils.AnswerTool;
 import cn.chahuyun.session.utils.MessageTool;
 import lombok.extern.slf4j.Slf4j;
@@ -28,6 +30,8 @@ import xyz.cssxsh.mirai.hibernate.entry.MessageRecord;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+
+import static cn.chahuyun.session.HuYanSession.answerConfig;
 
 /**
  * 多词条控制
@@ -360,5 +364,40 @@ public class ManySessionControl {
         manySessions.forEach(cacheService::putSession);
         subject.sendMessage("多词条缓存刷新成功!");
     }
+
+
+    public void removeManySessionFormQuery(MessageChain messages, Contact subject) {
+        QuoteReply quoteReply = messages.get(QuoteReply.Key);
+        if (quoteReply == null) {
+            return;
+        }
+        MessageSource source = quoteReply.getSource();
+        int id = source.getIds()[0];
+
+        SendCacheEntity sendMessage = SendMessageCache.getInstance().getSendMessage(id);
+        if (sendMessage == null || sendMessage.getType() != 1) {
+            return;
+        }
+
+        Cache cacheService = CacheFactory.getInstall().getCacheService();
+        ManySession manySession = cacheService.getManySession(sendMessage.getSessionId());
+        if (manySession == null) {
+            return;
+        }
+
+        ManySessionSubItem subItem = manySession.getSubItem(sendMessage.getSessionSonId());
+        if (subItem == null) {
+            return;
+        }
+
+        if (DataFactory.getInstance().getDataService().deleteEntity(subItem)) {
+            manySession.getChild().remove(subItem);
+            cacheService.putSession(manySession);
+            subject.sendMessage(AnswerTool.getAnswer(answerConfig.getRemoveSuccess()));
+        } else {
+            subject.sendMessage(AnswerTool.getAnswer(answerConfig.getRemoveFailed()));
+        }
+    }
+
 
 }

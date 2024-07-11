@@ -11,6 +11,8 @@ import cn.chahuyun.session.data.factory.DataFactory;
 import cn.chahuyun.session.enums.MatchTriggerType;
 import cn.chahuyun.session.enums.SessionType;
 import cn.chahuyun.session.send.LocalMessage;
+import cn.chahuyun.session.send.cache.SendCacheEntity;
+import cn.chahuyun.session.send.cache.SendMessageCache;
 import cn.chahuyun.session.utils.AnswerTool;
 import cn.chahuyun.session.utils.MessageTool;
 import cn.hutool.core.util.ArrayUtil;
@@ -166,6 +168,7 @@ public class SingleSessionControl {
     /**
      * 对话的方式学习
      * %xx( +trigger)?
+     *
      * @param messages 消息
      * @param subject  消息事件主体
      * @param sender   发送着
@@ -316,6 +319,34 @@ public class SingleSessionControl {
         List<SingleSession> SingleSessions = dataService.selectListEntity(SingleSession.class, "from SingleSession ");
         SingleSessions.forEach(cacheService::putSession);
         subject.sendMessage("单一缓存刷新成功!");
+    }
+
+
+    public void removeSimpleSingleSessionFormQuery(MessageChain messages, Contact subject) {
+        QuoteReply quoteReply = messages.get(QuoteReply.Key);
+        if (quoteReply == null) {
+            return;
+        }
+        MessageSource quoteReplySource = quoteReply.getSource();
+        int msgId = quoteReplySource.getInternalIds()[0];
+
+        SendMessageCache sendMessageCache = SendMessageCache.getInstance();
+        SendCacheEntity sendMessage = sendMessageCache.getSendMessage(msgId);
+
+        if (sendMessage == null || sendMessage.getType() != 0) {
+            return;
+        }
+
+        Integer sessionId = sendMessage.getSessionId();
+
+        Cache cacheService = CacheFactory.getInstall().getCacheService();
+        SingleSession singSession = cacheService.getSingSession(sessionId);
+        if (DataFactory.getInstance().getDataService().deleteEntity(singSession)) {
+            cacheService.removeSingSession(sessionId);
+            subject.sendMessage(AnswerTool.getAnswer(answerConfig.getRemoveSuccess()));
+        } else {
+            subject.sendMessage(AnswerTool.getAnswer(answerConfig.getRemoveFailed()));
+        }
     }
 
 

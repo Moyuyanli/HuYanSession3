@@ -10,6 +10,7 @@ import lombok.Setter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 多词条消息
@@ -111,5 +112,18 @@ public class ManySession extends BaseEntity implements Session {
         return child.get(nextSub++ % child.size());
     }
 
+    /**
+     * 获取子消息
+     * @param subId 子消息id
+     * @return 子消息
+     */
+    public ManySessionSubItem getSubItem(Integer subId) {
+        for (ManySessionSubItem manySessionSubItem : child) {
+            if (Objects.equals(manySessionSubItem.getId(), subId)) {
+                return manySessionSubItem;
+            }
+        }
+        return null;
+    }
 
 }
