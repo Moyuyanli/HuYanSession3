@@ -19,7 +19,7 @@ object SessionPluginConfig : AutoSavePluginConfig("config") {
     @ValueDescription("主人")
     var owner: Long by value(12346L)
 
-    @ValueDescription("数据库链接方式")
+    @ValueDescription("数据库链接方式(H2,MYSQL,SQLITE)")
     var dataType: DataType by value(DataType.H2)
 
     @ValueDescription("权限类型")
@@ -36,6 +36,9 @@ object SessionPluginConfig : AutoSavePluginConfig("config") {
 
     @ValueDescription("群典功能的默认触发词")
     var groupClassicName: String by value("群典")
+
+    @ValueDescription("发送消息缓存")
+    var sendCacheQuantity: Int by value(8)
 
     @ValueDescription("是否匹配全部消息(true:响应所有能匹配成功的消息;false:只响应按照下列顺序匹配到的第一个)")
     var matchAll: Boolean by value(false)

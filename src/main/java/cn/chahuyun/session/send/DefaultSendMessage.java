@@ -4,10 +4,13 @@ import cn.chahuyun.session.constant.Constant;
 import cn.chahuyun.session.data.entity.*;
 import cn.chahuyun.session.enums.SendType;
 import cn.chahuyun.session.send.api.SendMessage;
+import cn.chahuyun.session.send.cache.SendCacheEntity;
+import cn.chahuyun.session.send.cache.SendMessageCache;
 import cn.hutool.core.util.RandomUtil;
 import lombok.extern.slf4j.Slf4j;
 import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.event.events.MessageEvent;
+import net.mamoe.mirai.message.MessageReceipt;
 import net.mamoe.mirai.message.data.*;
 
 import java.util.List;
@@ -129,7 +132,15 @@ public class DefaultSendMessage implements SendMessage {
 
         if (singleSession.getProbability() == 1.0 ||
                 RandomUtil.randomInt(1, 100) <= singleSession.getProbability() * 100) {
-            subject.sendMessage(replyMessageChain);
+            MessageReceipt<Contact> message = subject.sendMessage(replyMessageChain);
+            MessageSource messageSource = message.getSource();
+            if (messageSource != null) {
+                SendCacheEntity sendCacheEntity = new SendCacheEntity();
+                sendCacheEntity.setType(0);
+                sendCacheEntity.setMsgId(messageSource.getInternalIds()[0]);
+                sendCacheEntity.setSessionId(singleSession.getId());
+                SendMessageCache.getInstance().addSendMessage(sendCacheEntity);
+            }
         }
     }
 
@@ -189,7 +200,16 @@ public class DefaultSendMessage implements SendMessage {
 
         if (manySession.getProbability() == 1.0 ||
                 RandomUtil.randomInt(1, 100) <= manySession.getProbability() * 100) {
-            subject.sendMessage(replyMessageChain);
+            MessageReceipt<Contact> message = subject.sendMessage(replyMessageChain);
+            OnlineMessageSource.Outgoing source = message.getSource();
+            if (source != null) {
+                SendCacheEntity sendCacheEntity = new SendCacheEntity();
+                sendCacheEntity.setType(1);
+                sendCacheEntity.setMsgId(source.getIds()[0]);
+                sendCacheEntity.setSessionId(manySession.getId());
+                sendCacheEntity.setSessionSonId(sessionSubItem.getId());
+                SendMessageCache.getInstance().addSendMessage(sendCacheEntity);
+            }
         }
     }
 
