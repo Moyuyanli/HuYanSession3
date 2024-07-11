@@ -150,7 +150,6 @@ public class EventServices extends SimpleListenerHost implements EventHanding {
             } else if (message.contains(QuoteReply.Key) && (content.contains("删除") || content.contains("sc"))) {
                 log.debug("删除对话指令");
                 SingleSessionControl.INSTANCE.removeSimpleSingleSessionFormQuery(message,subject);
-                return;
             }
         }
 
@@ -178,7 +177,6 @@ public class EventServices extends SimpleListenerHost implements EventHanding {
             } else if (message.contains(QuoteReply.Key) && (content.contains("删除") || content.contains("sc"))) {
                 log.debug("删除多词条指令");
                 ManySessionControl.INSTANCE.removeManySessionFormQuery(message,subject);
-                return;
             }
 
         }
