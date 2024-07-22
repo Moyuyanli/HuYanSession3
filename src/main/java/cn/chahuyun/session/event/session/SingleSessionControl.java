@@ -1,5 +1,7 @@
 package cn.chahuyun.session.event.session;
 
+import cn.chahuyun.session.HuYanSession;
+import cn.chahuyun.session.constant.Constant;
 import cn.chahuyun.session.data.ParameterSet;
 import cn.chahuyun.session.data.Scope;
 import cn.chahuyun.session.data.cache.Cache;
@@ -15,7 +17,9 @@ import cn.chahuyun.session.send.cache.SendCacheEntity;
 import cn.chahuyun.session.send.cache.SendMessageCache;
 import cn.chahuyun.session.utils.AnswerTool;
 import cn.chahuyun.session.utils.MessageTool;
+import cn.chahuyun.session.utils.TimingUtil;
 import cn.hutool.core.util.ArrayUtil;
+import lombok.extern.slf4j.Slf4j;
 import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.contact.User;
 import net.mamoe.mirai.event.events.MessageEvent;
@@ -33,6 +37,7 @@ import static cn.chahuyun.session.HuYanSession.answerConfig;
  * @author Moyuyanli
  * @date 2024/2/28 14:10
  */
+@Slf4j(topic = Constant.LOG_TOPIC)
 public class SingleSessionControl {
 
     public static final SingleSessionControl INSTANCE = new SingleSessionControl();
@@ -46,6 +51,11 @@ public class SingleSessionControl {
      * @param sender   发送着
      */
     public void studySimpleSingleSession(MessageChain messages, Contact subject, User sender) {
+
+        if (HuYanSession.pluginConfig.getDevTool()) {
+            log.debug("匹配指令用时:{}ns", TimingUtil.getResults(Thread.currentThread().getName()));
+        }
+
         String code = messages.serializeToMiraiCode();
 
         String[] params = code.split("\\s+");
@@ -162,6 +172,10 @@ public class SingleSessionControl {
             result = AnswerTool.getAnswer(answerConfig.getStudyFailed());
         }
         subject.sendMessage(result);
+        if (HuYanSession.pluginConfig.getDevTool()) {
+            log.debug("简单学习消息指令用时:{}ns", TimingUtil.getResults(Thread.currentThread().getName()));
+            TimingUtil.cleanTiming(Thread.currentThread().getName());
+        }
     }
 
 
@@ -174,6 +188,11 @@ public class SingleSessionControl {
      * @param sender   发送着
      */
     public void studyDialogue(MessageChain messages, Contact subject, User sender) {
+
+        if (HuYanSession.pluginConfig.getDevTool()) {
+            log.debug("匹配指令用时:{}ns", TimingUtil.getResults(Thread.currentThread().getName()));
+        }
+
         String[] split = messages.serializeToMiraiCode().split(" ");
         String trigger;
         if (split.length == 1) {
@@ -251,7 +270,10 @@ public class SingleSessionControl {
             result = AnswerTool.getAnswer(answerConfig.getStudyFailed());
         }
         subject.sendMessage(result);
-
+        if (HuYanSession.pluginConfig.getDevTool()) {
+            log.debug("对话的方式学习指令用时:{}ns", TimingUtil.getResults(Thread.currentThread().getName()));
+            TimingUtil.cleanTiming(Thread.currentThread().getName());
+        }
     }
 
     /**
@@ -263,6 +285,9 @@ public class SingleSessionControl {
      * @param sender   发送着
      */
     public void removeSimpleSingleSession(MessageChain messages, Contact subject, User sender) {
+        if (HuYanSession.pluginConfig.getDevTool()) {
+            log.debug("匹配指令用时:{}ns", TimingUtil.getResults(Thread.currentThread().getName()));
+        }
         String code = messages.serializeToMiraiCode();
 
         String[] params = code.split("\\s+");
@@ -311,18 +336,36 @@ public class SingleSessionControl {
                 }
             }
         }
+        if (HuYanSession.pluginConfig.getDevTool()) {
+            log.debug("删除词条指令用时:{}ns", TimingUtil.getResults(Thread.currentThread().getName()));
+            TimingUtil.cleanTiming(Thread.currentThread().getName());
+        }
     }
 
     public void refresh(Contact subject) {
+        if (HuYanSession.pluginConfig.getDevTool()) {
+            log.debug("匹配指令用时:{}ns", TimingUtil.getResults(Thread.currentThread().getName()));
+        }
         AbstractDataService dataService = DataFactory.getInstance().getDataService();
         Cache cacheService = CacheFactory.getInstall().getCacheService();
         List<SingleSession> SingleSessions = dataService.selectListEntity(SingleSession.class, "from SingleSession ");
         SingleSessions.forEach(cacheService::putSession);
         subject.sendMessage("单一缓存刷新成功!");
+        if (HuYanSession.pluginConfig.getDevTool()) {
+            log.debug("单一缓存刷新指令用时:{}ns", TimingUtil.getResults(Thread.currentThread().getName()));
+            TimingUtil.cleanTiming(Thread.currentThread().getName());
+        }
     }
 
-
+    /**
+     * 引用删除
+     * @param messages 消息
+     * @param subject 载体
+     */
     public void removeSimpleSingleSessionFormQuery(MessageChain messages, Contact subject) {
+        if (HuYanSession.pluginConfig.getDevTool()) {
+            log.debug("匹配指令用时:{}ns", TimingUtil.getResults(Thread.currentThread().getName()));
+        }
         QuoteReply quoteReply = messages.get(QuoteReply.Key);
         if (quoteReply == null) {
             return;
@@ -346,6 +389,10 @@ public class SingleSessionControl {
             subject.sendMessage(AnswerTool.getAnswer(answerConfig.getRemoveSuccess()));
         } else {
             subject.sendMessage(AnswerTool.getAnswer(answerConfig.getRemoveFailed()));
+        }
+        if (HuYanSession.pluginConfig.getDevTool()) {
+            log.debug("引用删除指令用时:{}ns", TimingUtil.getResults(Thread.currentThread().getName()));
+            TimingUtil.cleanTiming(Thread.currentThread().getName());
         }
     }
 

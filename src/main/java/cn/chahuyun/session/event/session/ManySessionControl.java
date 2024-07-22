@@ -17,6 +17,7 @@ import cn.chahuyun.session.send.cache.SendCacheEntity;
 import cn.chahuyun.session.send.cache.SendMessageCache;
 import cn.chahuyun.session.utils.AnswerTool;
 import cn.chahuyun.session.utils.MessageTool;
+import cn.chahuyun.session.utils.TimingUtil;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import net.mamoe.mirai.contact.Contact;
@@ -50,6 +51,9 @@ public class ManySessionControl {
     }
 
     public void studyManySession(MessageChain messages, Contact subject, User sender) {
+        if (HuYanSession.pluginConfig.getDevTool()) {
+            log.debug("匹配指令用时:{}ns", TimingUtil.getResults(Thread.currentThread().getName()));
+        }
         String[] split = messages.serializeToMiraiCode().split(" ");
         String trigger;
         if (split.length == 1) {
@@ -151,6 +155,10 @@ public class ManySessionControl {
         } else {
             subject.sendMessage(AnswerTool.getAnswer(HuYanSession.answerConfig.getStudyFailed()));
         }
+        if (HuYanSession.pluginConfig.getDevTool()) {
+            log.debug("引用删除指令用时:{}ns", TimingUtil.getResults(Thread.currentThread().getName()));
+            TimingUtil.cleanTiming(Thread.currentThread().getName());
+        }
     }
 
     /**
@@ -161,6 +169,9 @@ public class ManySessionControl {
      * @param sender   发送着
      */
     public void addGroupClassic(MessageChain messages, Contact subject, User sender) {
+        if (HuYanSession.pluginConfig.getDevTool()) {
+            log.debug("匹配指令用时:{}ns", TimingUtil.getResults(Thread.currentThread().getName()));
+        }
         if (!(subject instanceof Group)) {
             return;
         }
@@ -259,6 +270,10 @@ public class ManySessionControl {
         } else {
             subject.sendMessage("入典失败!");
         }
+        if (HuYanSession.pluginConfig.getDevTool()) {
+            log.debug("群典添加法指令用时:{}ns", TimingUtil.getResults(Thread.currentThread().getName()));
+            TimingUtil.cleanTiming(Thread.currentThread().getName());
+        }
     }
 
     /**
@@ -270,6 +285,9 @@ public class ManySessionControl {
      * @param sender   发送者
      */
     public void removeManySession(MessageChain messages, Contact subject, User sender) {
+        if (HuYanSession.pluginConfig.getDevTool()) {
+            log.debug("匹配指令用时:{}ns", TimingUtil.getResults(Thread.currentThread().getName()));
+        }
         String code = messages.serializeToMiraiCode();
         String[] split = code.split(" +");
 
@@ -349,6 +367,10 @@ public class ManySessionControl {
                 .append("失败:").append(String.valueOf(failed)).append("条");
 
         subject.sendMessage(builder.build());
+        if (HuYanSession.pluginConfig.getDevTool()) {
+            log.debug("删除多词条指令用时:{}ns", TimingUtil.getResults(Thread.currentThread().getName()));
+            TimingUtil.cleanTiming(Thread.currentThread().getName());
+        }
     }
 
 
@@ -358,15 +380,25 @@ public class ManySessionControl {
      * @param subject 消息载体
      */
     public void refresh(Contact subject) {
+        if (HuYanSession.pluginConfig.getDevTool()) {
+            log.debug("匹配指令用时:{}ns", TimingUtil.getResults(Thread.currentThread().getName()));
+        }
         AbstractDataService dataService = DataFactory.getInstance().getDataService();
         Cache cacheService = CacheFactory.getInstall().getCacheService();
         List<ManySession> manySessions = dataService.selectListEntity(ManySession.class, "from ManySession");
         manySessions.forEach(cacheService::putSession);
         subject.sendMessage("多词条缓存刷新成功!");
+        if (HuYanSession.pluginConfig.getDevTool()) {
+            log.debug("多词条缓存刷新指令用时:{}ns", TimingUtil.getResults(Thread.currentThread().getName()));
+            TimingUtil.cleanTiming(Thread.currentThread().getName());
+        }
     }
 
 
     public void removeManySessionFormQuery(MessageChain messages, Contact subject) {
+        if (HuYanSession.pluginConfig.getDevTool()) {
+            log.debug("匹配指令用时:{}ns", TimingUtil.getResults(Thread.currentThread().getName()));
+        }
         QuoteReply quoteReply = messages.get(QuoteReply.Key);
         if (quoteReply == null) {
             return;
@@ -396,6 +428,10 @@ public class ManySessionControl {
             subject.sendMessage(AnswerTool.getAnswer(answerConfig.getRemoveSuccess()));
         } else {
             subject.sendMessage(AnswerTool.getAnswer(answerConfig.getRemoveFailed()));
+        }
+        if (HuYanSession.pluginConfig.getDevTool()) {
+            log.debug("多词条引用删除指令用时:{}ns", TimingUtil.getResults(Thread.currentThread().getName()));
+            TimingUtil.cleanTiming(Thread.currentThread().getName());
         }
     }
 

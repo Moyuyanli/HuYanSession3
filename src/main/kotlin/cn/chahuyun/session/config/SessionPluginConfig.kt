@@ -43,6 +43,9 @@ object SessionPluginConfig : AutoSavePluginConfig("config") {
     @ValueDescription("是否匹配全部消息(true:响应所有能匹配成功的消息;false:只响应按照下列顺序匹配到的第一个)")
     var matchAll: Boolean by value(false)
 
+    @ValueDescription("调试工具")
+    var devTool: Boolean by value(false)
+
     @ValueDescription("数据查询排序(也可以理解为匹配优先级)")
     val scopeSort: List<Scope.Type> by value(arrayListOf<Scope.Type>().apply {
         add(Scope.Type.USERS)

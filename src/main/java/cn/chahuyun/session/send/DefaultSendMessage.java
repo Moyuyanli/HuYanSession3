@@ -1,11 +1,13 @@
 package cn.chahuyun.session.send;
 
+import cn.chahuyun.session.HuYanSession;
 import cn.chahuyun.session.constant.Constant;
 import cn.chahuyun.session.data.entity.*;
 import cn.chahuyun.session.enums.SendType;
 import cn.chahuyun.session.send.api.SendMessage;
 import cn.chahuyun.session.send.cache.SendCacheEntity;
 import cn.chahuyun.session.send.cache.SendMessageCache;
+import cn.chahuyun.session.utils.TimingUtil;
 import cn.hutool.core.util.RandomUtil;
 import lombok.extern.slf4j.Slf4j;
 import net.mamoe.mirai.contact.Contact;
@@ -142,6 +144,10 @@ public class DefaultSendMessage implements SendMessage {
                 SendMessageCache.getInstance().addSendMessage(sendCacheEntity);
             }
         }
+        if (HuYanSession.pluginConfig.getDevTool()) {
+            log.debug("单一消息发送用时:{}ns", TimingUtil.getResults(Thread.currentThread().getName() + "-m"));
+            TimingUtil.cleanTiming(Thread.currentThread().getName() + "-m");
+        }
     }
 
     /**
@@ -155,6 +161,7 @@ public class DefaultSendMessage implements SendMessage {
         ManySessionSubItem sessionSubItem = manySession.nextMessage();
 
         String reply = sessionSubItem.getReply();
+        if (reply.equals("多词条消息为空")) return;
         MessageChain replyMessageChain = MessageChain.deserializeFromJsonString(reply);
 
         if (sessionSubItem.isDynamic()) {
@@ -210,6 +217,10 @@ public class DefaultSendMessage implements SendMessage {
                 sendCacheEntity.setSessionSonId(sessionSubItem.getId());
                 SendMessageCache.getInstance().addSendMessage(sendCacheEntity);
             }
+        }
+        if (HuYanSession.pluginConfig.getDevTool()) {
+            log.debug("多词条消息发送用时:{}ns", TimingUtil.getResults(Thread.currentThread().getName() + "-m"));
+            TimingUtil.cleanTiming(Thread.currentThread().getName() + "-m");
         }
     }
 

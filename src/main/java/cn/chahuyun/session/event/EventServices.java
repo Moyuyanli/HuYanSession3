@@ -15,6 +15,7 @@ import cn.chahuyun.session.event.session.SingleSessionControl;
 import cn.chahuyun.session.send.DefaultSendMessage;
 import cn.chahuyun.session.utils.MatchingTool;
 import cn.chahuyun.session.utils.PermTool;
+import cn.chahuyun.session.utils.TimingUtil;
 import kotlin.coroutines.CoroutineContext;
 import lombok.extern.slf4j.Slf4j;
 import net.mamoe.mirai.Bot;
@@ -53,6 +54,9 @@ public class EventServices extends SimpleListenerHost implements EventHanding {
     @Override
     @EventHandler
     public void messageMatching(MessageEvent messageEvent) {
+        if (HuYanSession.pluginConfig.getDevTool()) {
+            TimingUtil.startTiming(Thread.currentThread().getName()+"-m");
+        }
         MessageChain messageChain = messageEvent.getMessage();
         Contact subject = messageEvent.getSubject();
         User sender = messageEvent.getSender();
@@ -65,6 +69,9 @@ public class EventServices extends SimpleListenerHost implements EventHanding {
                 List<SingleSession> singleSessions = cacheService.getSingSession(scope);
                 for (SingleSession singleSession : singleSessions) {
                     if (MatchingTool.matchTrigger(singleSession, messageChain)) {
+                        if (HuYanSession.pluginConfig.getDevTool()) {
+                            log.debug("单一消息匹配用时:{}ns", TimingUtil.getResults(Thread.currentThread().getName()+"-m"));
+                        }
                         DefaultSendMessage.create(singleSession, messageEvent).send();
                         if (!HuYanSession.pluginConfig.getMatchAll()) return;
                     }
@@ -78,6 +85,9 @@ public class EventServices extends SimpleListenerHost implements EventHanding {
                 List<ManySession> manySessionList = cacheService.getManySession(scope);
                 for (ManySession manySession : manySessionList) {
                     if (MatchingTool.matchTrigger(manySession, messageChain)) {
+                        if (HuYanSession.pluginConfig.getDevTool()) {
+                            log.debug("多词条消息匹配用时:{}ns", TimingUtil.getResults(Thread.currentThread().getName()+"-m"));
+                        }
                         DefaultSendMessage.create(manySession, messageEvent).send();
                         if (!HuYanSession.pluginConfig.getMatchAll()) return;
                     }
@@ -95,6 +105,10 @@ public class EventServices extends SimpleListenerHost implements EventHanding {
     @Override
     @EventHandler
     public void commandMatching(MessageEvent messageEvent) {
+        if (HuYanSession.pluginConfig.getDevTool()) {
+            TimingUtil.startTiming(Thread.currentThread().getName());
+        }
+
         Contact subject = messageEvent.getSubject();
         User sender = messageEvent.getSender();
         MessageChain message = messageEvent.getMessage();
