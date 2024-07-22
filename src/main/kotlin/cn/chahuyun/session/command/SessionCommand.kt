@@ -23,6 +23,13 @@ class SessionCommand : CompositeCommand(
         sendMessage("当前壶言会话3版本 ${HuYanSession.VERSION}")
     }
 
+    @SubCommand("owner")
+    @Description("设置主人")
+    suspend fun CommandSender.owner(owner: Long) {
+        HuYanSession.pluginConfig.owner = owner
+        sendMessage("已将主人设置为:${owner}")
+    }
+
     @SubCommand("ref")
     @Description("刷新缓存")
     suspend fun CommandSender.refresh() {
