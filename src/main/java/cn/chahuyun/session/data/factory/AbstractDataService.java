@@ -1,7 +1,9 @@
 package cn.chahuyun.session.data.factory;
 
 import cn.chahuyun.api.data.api.DataSpecification;
-import cn.chahuyun.session.data.entity.GroupedLists;
+import cn.chahuyun.session.data.cache.CacheFactory;
+import cn.chahuyun.session.data.entity.*;
+import lombok.val;
 import org.hibernate.SessionFactory;
 
 /**
@@ -30,6 +32,21 @@ public abstract class AbstractDataService implements DataSpecification {
             throw new RuntimeException("根据分组名查询分组信息错误:结果为空!");
         }
         return groupedLists;
+    }
+
+
+    public void refresh() {
+        val singleSessions = selectListEntity(SingleSession.class, "from SingleSession");
+        val manySessions = selectListEntity(ManySession.class, "from ManySession");
+        val timingSessions = selectListEntity(TimingSession.class, "from TimingSession");
+        val permissions = selectListEntity(Permission.class, "from Permission");
+
+        val cacheService = CacheFactory.getInstall().getCacheService();
+
+        singleSessions.forEach(cacheService::putSession);
+        manySessions.forEach(cacheService::putSession);
+        timingSessions.forEach(cacheService::putSession);
+        permissions.forEach(cacheService::putPermission);
     }
 
 }

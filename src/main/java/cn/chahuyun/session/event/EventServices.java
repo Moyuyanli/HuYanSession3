@@ -210,6 +210,17 @@ public class EventServices extends SimpleListenerHost implements EventHanding {
             }
         }
 
+
+        boolean group = owner || permUser.isAdmin();
+        if (group) {
+            String addGroupList = "^+group +(.*?) +\\d|添加群组 +(.*?) +\\d";
+            if (Pattern.matches(addGroupList, content)) {
+                log.debug("添加群组指令");
+
+            }
+
+        }
+
         //todo 匹配指令
         if (sender.getId() == 572490972 && content.lastIndexOf("!String") == 0) {
             subject.sendMessage(message.toString());
