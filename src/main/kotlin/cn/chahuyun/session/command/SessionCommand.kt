@@ -34,20 +34,7 @@ class SessionCommand : CompositeCommand(
     @Description("刷新缓存")
     suspend fun CommandSender.refresh() {
 
-        val dataService = DataFactory.getInstance().dataService
-
-        val singleSessions = dataService.selectListEntity(SingleSession::class.java, "from SingleSession")
-        val manySessions = dataService.selectListEntity(ManySession::class.java, "from ManySession")
-        val timingSessions = dataService.selectListEntity(TimingSession::class.java, "from TimingSession")
-        val permissions = dataService.selectListEntity(Permission::class.java, "from Permission")
-
-        val cacheService = CacheFactory.getInstall().cacheService
-
-        singleSessions.forEach { cacheService.putSession(it) }
-        manySessions.forEach { cacheService.putSession(it) }
-        timingSessions.forEach { cacheService.putSession(it) }
-        permissions.forEach { cacheService.putPermission(it) }
-
+        DataFactory.getInstance().dataService.refresh()
         sendMessage("缓存刷新成功！")
     }
 

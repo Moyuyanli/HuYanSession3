@@ -21,6 +21,7 @@ public class DataFactory {
      * @return 数据工厂
      */
 
+    @Getter
     private static DataFactory instance;
 
     /**
@@ -30,6 +31,7 @@ public class DataFactory {
      * @return DataService 数据服务
      */
 
+    @Getter
     private final AbstractDataService dataService;
 
     private DataFactory(SessionFactory sessionFactory) {
@@ -56,11 +58,4 @@ public class DataFactory {
         return new DefaultDataService(sessionFactory);
     }
 
-    public static DataFactory getInstance() {
-        return instance;
-    }
-
-    public AbstractDataService getDataService() {
-        return dataService;
-    }
 }
